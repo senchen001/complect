@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Добавить 10 к числу</title>
+    <title>Поиск книг</title>
     <!-- Bootstrap CSS CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
@@ -56,11 +56,11 @@
                         <h2>Записи в комплекте</h2>
                         <ul>
                           <?php
-                        
+                        if(isset($complectRecs)){
                             foreach ($complectRecs as $rec) {
                                 echo "<li>".$rec."</li>";
                             }
-                        
+                        }
                         ?>  
                         </ul>
                     </div>
