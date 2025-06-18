@@ -33,14 +33,21 @@ class SearchController extends Controller
                 if(isset($resAll['records'])){
                     
                     foreach($resAll['records'][0] as $record){
-                        $found = strpos($record, $validated['inputNumber']);//найдем строку с инвентарником
+                      /*  $found = strpos($record, $validated['inputNumber']);//найдем строку с инвентарником
+                        echo "<pre>";
+                        var_dump($record);
+                        echo "</pre>";
+
+                       */ 
+                        $invNum = $validated['inputNumber'];
+                        $found = $this -> isInvNum($record, $invNum);//проверяем содержит ли запись инвентарный номер
                         if($found!==false){
                             $found2 = strpos($record, "910/");//найдем запись экземпляра
                             if($found2!==false){
                                 echo $record . "<br>";
                                 $book = $record;//запись книги, для которой нужно вывести статус
                             }else{
-                                dd($record);
+                                
                                 $found940 = strpos($record, "940/");//запись найдена в поле 940?
                                 if($found940!==false){
                                     $book = "spisan";//книга списана 
@@ -99,6 +106,38 @@ class SearchController extends Controller
         }
     }
 
+    public function isInvNum($record, $invNum) {
+    $is910 = strpos($record, "910/");
+    if ($is910 !== false) {
+        // Find the position of ^B - this is where the inventory number starts
+        $isB = strpos($record, "^B");
+        if ($isB === false) {
+            return false; // If ^B is not found, return false
+        }
+        
+        $startPos = $isB + 2;
+        $invNumFromRec = Array();
+        
+        // Loop through the record starting from the position after ^B
+        for ($i = $startPos; $i < strlen($record); $i++) {
+            // The inventory number ends with ^
+            if ($record[$i] == "^") {
+                break; // Exit the loop if we reach the end of the inventory number
+            }
+            $invNumFromRec[] = $record[$i];
+        }
+        
+        // Convert the array to a string if needed
+        $invNumFromRecString = implode('', $invNumFromRec);
+        if($invNumFromRecString==$invNum){
+            return true;
+        }
+        
+    }
+    return false; // If 910/ is not found, return false
+}
+
+
     public function getBookStatus($book){
         $status = Array(
             "0" => "Для ЭК - отдельный экземпляр, поступил по месту хранения",
@@ -124,7 +163,7 @@ class SearchController extends Controller
         $bookStat = $status[$book[$statPos+2]];
         }
         else{
-            dd($book);
+           // dd($book);
         }
         return $bookStat;
     }
