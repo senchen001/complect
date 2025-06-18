@@ -35,12 +35,13 @@ class SearchController extends Controller
                     foreach($resAll['records'][0] as $record){
                         $found = strpos($record, $validated['inputNumber']);//найдем строку с инвентарником
                         if($found!==false){
-                            $found2 = strpos($record, "910/1:");//найдем запись экземпляра
+                            $found2 = strpos($record, "910/");//найдем запись экземпляра
                             if($found2!==false){
                                 echo $record . "<br>";
                                 $book = $record;//запись книги, для которой нужно вывести статус
                             }else{
-                                $found940 = strpos($record, "940/1:");//запись найдена в поле 940?
+                                dd($record);
+                                $found940 = strpos($record, "940/");//запись найдена в поле 940?
                                 if($found940!==false){
                                     $book = "spisan";//книга списана 
                                 }
@@ -71,7 +72,7 @@ class SearchController extends Controller
             if($book == "spisan"){
                 $bookStatus = "Архивные сведения списание (940)";
             }
-        }
+        }else{dd("no book");}
 
         
         $result = $res;
@@ -93,6 +94,7 @@ class SearchController extends Controller
         if(isset($bookStatus)){
             return view('search', compact('result', 'complectRecs', 'bookStatus'));
         }else{
+            
             return view('search', compact('result', 'complectRecs'));
         }
     }
@@ -116,9 +118,14 @@ class SearchController extends Controller
         );
 
         $statPos = strpos($book, "^A");
+        if($statPos!==false){
         echo "<br>-----------statPos ".$statPos . "<br>";
         echo $book[$statPos+2] . "<br>";//позиция статуса в строке
         $bookStat = $status[$book[$statPos+2]];
+        }
+        else{
+            dd($book);
+        }
         return $bookStat;
     }
 }
