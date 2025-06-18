@@ -28,8 +28,10 @@ class SearchController extends Controller
             }
             if($validated['selection'] == 'in'){
                 $res = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1);//для вывода инфо о книге
+                
                 $resAll = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1, $format = '@all');//для вывода инфо о статусе
                 if(isset($resAll['records'])){
+                    
                     foreach($resAll['records'][0] as $record){
                         $found = strpos($record, $validated['inputNumber']);//найдем строку с инвентарником
                         if($found!==false){
@@ -37,19 +39,38 @@ class SearchController extends Controller
                             if($found2!==false){
                                 echo $record . "<br>";
                                 $book = $record;//запись книги, для которой нужно вывести статус
+                            }else{
+                                $found940 = strpos($record, "940/1:");//запись найдена в поле 940?
+                                if($found940!==false){
+                                    $book = "spisan";//книга списана 
+                                }
                             }
+                        }
+                        if($found == false){
+                           //echo "<br>--------инвентарный номер в записи не найден<br><pre>";
+                           //var_dump($record);
+                           //echo "</br>";
                         }
                     }
                 }else{
                     echo "<h1>Не удалось получить всю запись</h1>";
+                    echo "<pre>";
+                    var_dump($res);
+                    var_dump($resAll);
+                    echo "</pre>";
                 }   
                 
             //dd($resAll['records']);
             }
         }
         if(isset($book)){
-            $bookStatus = $this->getBookStatus($book);
-            echo "<br>----------------".$bookStatus."<br>";
+            if($book != "spisan"){
+                $bookStatus = $this->getBookStatus($book);
+                echo "<br>----------------".$bookStatus."<br>";
+            }
+            if($book == "spisan"){
+                $bookStatus = "Архивные сведения списание (940)";
+            }
         }
 
         

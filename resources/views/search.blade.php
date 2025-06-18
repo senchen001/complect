@@ -61,8 +61,8 @@
                         <h2>Записи в комплекте</h2>
                         
                           <?php
-                        if(isset($complectRecs)){
-                            dd($complectRecs);
+                        if(count($complectRecs) > 0){
+                            
                             echo "<ul>";
                             foreach ($complectRecs as $rec) {
                                 echo "<li>".$rec."</li>";
