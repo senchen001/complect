@@ -41,15 +41,16 @@
                 
                     <div class="alert alert-success mt-4" role="alert">
                         Результат: 
-                        <ul>
+                        
                         <?php
                         if(isset($result["records"][0])){
                             foreach ($result["records"] as $item) {
-                                echo "<li>".$item[1]."</li>";
+                                echo "<h5>экземпляр:</h5>".$item[1]."<br>";
+                                echo "<h5>статус:</h5>".$bookStatus."<br>";
                             }
                         }
                         ?>    
-                        </ul>
+                        
                     </div>
 
                     <div>

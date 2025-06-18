@@ -35,7 +35,7 @@ class SearchController extends Controller
                         $found2 = strpos($record, "910/1:");//найдем запись экземпляра
                         if($found2!==false){
                         echo $record . "<br>";
-                        $book = $record;
+                        $book = $record;//запись книги, для которой нужно вывести статус
                         }
                     }
                 }   
@@ -44,6 +44,8 @@ class SearchController extends Controller
             }
         }
         
+        $bookStatus = $this->getBookStatus($book);
+        echo "<br>----------------".$bookStatus."<br>";
         $result = $res;
         $irbis->set_db('RDRKV2');
         $res2 = $irbis->records_search('IN='.$validated['inputNumber'],  10, 1);//инвентарные номера записей в комплекте
@@ -53,11 +55,11 @@ class SearchController extends Controller
         $complect = explode("*", $res2['records'][0][1]);
         for($i=0; $i<count($complect)-1; $i++){
             $res = $irbis->records_search('IN='.$complect[$i], 10, 1);
-            $complectRecs[] = $res['records'][0][1];
+            $complectRecs[] = $res['records'][0][1];//в массиве записи книг, которые входят в комплект
         }
         
         // Возвращаем шаблон с результатом
-        return view('search', compact('result', 'complectRecs'));
+        return view('search', compact('result', 'complectRecs', 'bookStatus'));
     }
 
     public function getBookStatus($book){
@@ -77,5 +79,11 @@ class SearchController extends Controller
             "1" => "Выдан читателю",
             "9" => "На бронеполке"
         );
+
+        $statPos = strpos($book, "^A");
+        echo "<br>-----------statPos ".$statPos . "<br>";
+        echo $book[$statPos+2] . "<br>";//позиция статуса в строке
+        $bookStat = $status[$book[$statPos+2]];
+        return $bookStat;
     }
 }
