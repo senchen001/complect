@@ -46,7 +46,11 @@
                         if(isset($result["records"][0])){
                             foreach ($result["records"] as $item) {
                                 echo "<h5>экземпляр:</h5>".$item[1]."<br>";
-                                echo "<h5>статус:</h5>".$bookStatus."<br>";
+                                if(isset($bookStatus)){
+                                    echo "<h5>статус:</h5>".$bookStatus."<br>";
+                                }else{
+                                    echo "<h5>не удалось получить статус</h5>";
+                                }
                             }
                         }
                         ?>    
@@ -55,15 +59,20 @@
 
                     <div>
                         <h2>Записи в комплекте</h2>
-                        <ul>
+                        
                           <?php
                         if(isset($complectRecs)){
+                            dd($complectRecs);
+                            echo "<ul>";
                             foreach ($complectRecs as $rec) {
                                 echo "<li>".$rec."</li>";
                             }
+                            echo "</ul>";
+                        }else{
+                            echo "<p>отсутствуют</p>";
                         }
                         ?>  
-                        </ul>
+                        
                     </div>
                 
             </div>

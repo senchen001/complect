@@ -29,37 +29,51 @@ class SearchController extends Controller
             if($validated['selection'] == 'in'){
                 $res = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1);//для вывода инфо о книге
                 $resAll = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1, $format = '@all');//для вывода инфо о статусе
-                foreach($resAll['records'][0] as $record){
-                    $found = strpos($record, $validated['inputNumber']);//найдем строку с инвентарником
-                    if($found!==false){
-                        $found2 = strpos($record, "910/1:");//найдем запись экземпляра
-                        if($found2!==false){
-                        echo $record . "<br>";
-                        $book = $record;//запись книги, для которой нужно вывести статус
+                if(isset($resAll['records'])){
+                    foreach($resAll['records'][0] as $record){
+                        $found = strpos($record, $validated['inputNumber']);//найдем строку с инвентарником
+                        if($found!==false){
+                            $found2 = strpos($record, "910/1:");//найдем запись экземпляра
+                            if($found2!==false){
+                                echo $record . "<br>";
+                                $book = $record;//запись книги, для которой нужно вывести статус
+                            }
                         }
                     }
+                }else{
+                    echo "<h1>Не удалось получить всю запись</h1>";
                 }   
                 
             //dd($resAll['records']);
             }
         }
+        if(isset($book)){
+            $bookStatus = $this->getBookStatus($book);
+            echo "<br>----------------".$bookStatus."<br>";
+        }
+
         
-        $bookStatus = $this->getBookStatus($book);
-        echo "<br>----------------".$bookStatus."<br>";
         $result = $res;
         $irbis->set_db('RDRKV2');
         $res2 = $irbis->records_search('IN='.$validated['inputNumber'],  10, 1);//инвентарные номера записей в комплекте
         //dd($res2['records'][0][1]);
         $complectRecs = Array();
         $irbis->set_db('IBIS');
-        $complect = explode("*", $res2['records'][0][1]);
-        for($i=0; $i<count($complect)-1; $i++){
-            $res = $irbis->records_search('IN='.$complect[$i], 10, 1);
-            $complectRecs[] = $res['records'][0][1];//в массиве записи книг, которые входят в комплект
+
+        if(isset($res2['records'][0][1])){
+            $complect = explode("*", $res2['records'][0][1]);
+            for($i=0; $i<count($complect)-1; $i++){
+                $res = $irbis->records_search('IN='.$complect[$i], 10, 1);
+                $complectRecs[] = $res['records'][0][1];//в массиве записи книг, которые входят в комплект
+            }
         }
         
         // Возвращаем шаблон с результатом
-        return view('search', compact('result', 'complectRecs', 'bookStatus'));
+        if(isset($bookStatus)){
+            return view('search', compact('result', 'complectRecs', 'bookStatus'));
+        }else{
+            return view('search', compact('result', 'complectRecs'));
+        }
     }
 
     public function getBookStatus($book){
