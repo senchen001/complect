@@ -44,7 +44,7 @@
                         
                         <?php
                         if(isset($result["records"][0])){
-                            dd($result["records"]);
+                            //dd($result["records"]);
                             foreach ($result["records"] as $item) {
                                 echo "<h5>экземпляр:</h5>".$item[1]."<br>";
                                 echo "<h5>инвентарный номер:</h5>".$invNum."<br>";
@@ -71,8 +71,6 @@
                                     echo "<li>".$rec."</li>";
                                 }
                                 echo "</ul>";
-                            }else{
-                                echo "<p>отсутствуют</p>";
                             }
                         }
                         ?>  

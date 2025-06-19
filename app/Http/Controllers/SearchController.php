@@ -39,7 +39,7 @@ class SearchController extends Controller
                         if($found!==false){
                             $found2 = strpos($record, "910/");//найдем запись экземпляра
                             if($found2!==false){
-                                echo $record . "<br>";
+                                //echo $record . "<br>";//////////////////////////////////////////вся запись целиком
                                 $book = $record;//запись книги, для которой нужно вывести статус
                             }else{                                
                                 $found940 = strpos($record, "940/");//запись найдена в поле 940?
@@ -53,7 +53,9 @@ class SearchController extends Controller
                 }else{
                     echo "<h1>Не удалось получить всю запись</h1>";
                     echo "<pre>";
+                    echo "краткая запись в формате brief:<br>";
                     var_dump($res);
+                    echo "вся запись в формате all:<br>";
                     var_dump($resAll);
                     echo "</pre>";
                 }   
@@ -64,7 +66,7 @@ class SearchController extends Controller
         if(isset($book)){
             if($book != "spisan"){
                 $bookStatus = $this->getBookStatus($book);
-                echo "<br>----------------".$bookStatus."<br>";
+                //echo "<br>----------------".$bookStatus."<br>";
             }
             if($book == "spisan"){
                 $bookStatus = "Архивные сведения списание (940)";
@@ -120,11 +122,11 @@ class SearchController extends Controller
         // Convert the array to a string if needed
         $invNumFromRecString = implode('', $invNumFromRec);
         $invNumFromDB = $invNumFromRecString;
-        echo "<br>";
+       /* echo "<br>";//////////////////////////////////отладка
         echo "инв из БД: ".$invNumFromRecString;
         echo "<br>";
         echo "искомый инв: ".$invNum;
-        echo "<br>";
+        echo "<br>";*/
         if($invNumFromRecString==$invNum){
             return true;
         }
@@ -154,8 +156,8 @@ class SearchController extends Controller
 
         $statPos = strpos($book, "^A");
         if($statPos!==false){
-        echo "<br>-----------statPos ".$statPos . "<br>";
-        echo $book[$statPos+2] . "<br>";//позиция статуса в строке
+        //echo "<br>-----------statPos ".$statPos . "<br>";//////////////отладка
+        //echo $book[$statPos+2] . "<br>";//позиция статуса в строке
         $bookStat = $status[$book[$statPos+2]];
         }
         else{
