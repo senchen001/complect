@@ -12,7 +12,8 @@ class SearchController extends Controller
 {
     public function search(Request $request)
     {
-       
+       global $invNumFromDB;
+
         $validated = $request->validate([
             'inputNumber' => 'required|string',
             'selection' => 'required|string',
@@ -30,34 +31,23 @@ class SearchController extends Controller
                 $res = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1);//для вывода инфо о книге
                 
                 $resAll = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1, $format = '@all');//для вывода инфо о статусе
-                if(isset($resAll['records'])){
-                    
+                if(isset($resAll['records'])){                    
                     foreach($resAll['records'][0] as $record){
-                      /*  $found = strpos($record, $validated['inputNumber']);//найдем строку с инвентарником
-                        echo "<pre>";
-                        var_dump($record);
-                        echo "</pre>";
-
-                       */ 
+                     
                         $invNum = $validated['inputNumber'];
-                        $found = $this -> isInvNum($record, $invNum);//проверяем содержит ли запись инвентарный номер
+                        $found = $this -> isInvNum($record, $invNum, $invNumFromDB);//проверяем содержит ли запись инвентарный номер
                         if($found!==false){
                             $found2 = strpos($record, "910/");//найдем запись экземпляра
                             if($found2!==false){
                                 echo $record . "<br>";
                                 $book = $record;//запись книги, для которой нужно вывести статус
-                            }else{
-                                
+                            }else{                                
                                 $found940 = strpos($record, "940/");//запись найдена в поле 940?
                                 if($found940!==false){
                                     $book = "spisan";//книга списана 
                                 }
                             }
-                        }
-                        if($found == false){
-                           //echo "<br>--------инвентарный номер в записи не найден<br><pre>";
-                           //var_dump($record);
-                           //echo "</br>";
+                        break;/////////////////////////////////////////////////книга найдена
                         }
                     }
                 }else{
@@ -99,14 +89,14 @@ class SearchController extends Controller
         
         // Возвращаем шаблон с результатом
         if(isset($bookStatus)){
-            return view('search', compact('result', 'complectRecs', 'bookStatus'));
+            return view('search', compact('result', 'complectRecs', 'bookStatus', 'invNum', 'invNumFromDB'));
         }else{
             
-            return view('search', compact('result', 'complectRecs'));
+            return view('search', compact('result', 'complectRecs', 'invNum'));
         }
     }
 
-    public function isInvNum($record, $invNum) {
+    public function isInvNum($record, $invNum, &$invNumFromDB) {
     $is910 = strpos($record, "910/");
     if ($is910 !== false) {
         // Find the position of ^B - this is where the inventory number starts
@@ -129,6 +119,12 @@ class SearchController extends Controller
         
         // Convert the array to a string if needed
         $invNumFromRecString = implode('', $invNumFromRec);
+        $invNumFromDB = $invNumFromRecString;
+        echo "<br>";
+        echo "инв из БД: ".$invNumFromRecString;
+        echo "<br>";
+        echo "искомый инв: ".$invNum;
+        echo "<br>";
         if($invNumFromRecString==$invNum){
             return true;
         }

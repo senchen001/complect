@@ -44,13 +44,17 @@
                         
                         <?php
                         if(isset($result["records"][0])){
+                            dd($result["records"]);
                             foreach ($result["records"] as $item) {
                                 echo "<h5>экземпляр:</h5>".$item[1]."<br>";
+                                echo "<h5>инвентарный номер:</h5>".$invNum."<br>";
+                                echo "<h5>инвентарный номер из БД:</h5>".$invNumFromDB."<br>";
                                 if(isset($bookStatus)){
                                     echo "<h5>статус:</h5>".$bookStatus."<br>";
                                 }else{
                                     echo "<h5>не удалось получить статус</h5>";
                                 }
+                            echo "<br><hr><br>";
                             }
                         }
                         ?>    
@@ -58,18 +62,18 @@
                     </div>
 
                     <div>
-                        <h2>Записи в комплекте</h2>
-                        
-                          <?php
-                        if(count($complectRecs) > 0){
-                            
-                            echo "<ul>";
-                            foreach ($complectRecs as $rec) {
-                                echo "<li>".$rec."</li>";
+                                                
+                        <?php
+                        if(isset($complectRecs)){
+                            if(count($complectRecs) > 0){                            
+                                echo "<h2>Записи в комплекте</h2><ul>";
+                                foreach ($complectRecs as $rec) {
+                                    echo "<li>".$rec."</li>";
+                                }
+                                echo "</ul>";
+                            }else{
+                                echo "<p>отсутствуют</p>";
                             }
-                            echo "</ul>";
-                        }else{
-                            echo "<p>отсутствуют</p>";
                         }
                         ?>  
                         
