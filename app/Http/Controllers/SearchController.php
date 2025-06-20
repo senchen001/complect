@@ -85,6 +85,7 @@ class SearchController extends Controller
             $complect = explode("*", $res2['records'][0][1]);
             for($i=0; $i<count($complect)-1; $i++){
                 $res = $irbis->records_search('IN='.$complect[$i], 10, 1);
+
                 $complectRecs[] = $res['records'][0][1];//в массиве записи книг, которые входят в комплект
             }
         }
