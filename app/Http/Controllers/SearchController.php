@@ -13,6 +13,8 @@ class SearchController extends Controller
     public function search(Request $request)
     {
        global $invNumFromDB;
+       $invNum = "";
+       $invNumFromDB = "";
 
         $validated = $request->validate([
             'inputNumber' => 'required|string',
@@ -26,6 +28,7 @@ class SearchController extends Controller
             }
             if($validated['selection'] == 'k'){
                 $res = $irbis->records_search('K='.$validated['inputNumber'], 10, 1);
+                
             }
             if($validated['selection'] == 'in'){
                 $res = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1);//для вывода инфо о книге
@@ -71,7 +74,8 @@ class SearchController extends Controller
             if($book == "spisan"){
                 $bookStatus = "Архивные сведения списание (940)";
             }
-        }else{dd("no book");}
+        }else{//dd("no book");
+            }
 
         
         $result = $res;
@@ -85,8 +89,11 @@ class SearchController extends Controller
             $complect = explode("*", $res2['records'][0][1]);
             for($i=0; $i<count($complect)-1; $i++){
                 $res = $irbis->records_search('IN='.$complect[$i], 10, 1);
-
-                $complectRecs[] = $res['records'][0][1];//в массиве записи книг, которые входят в комплект
+                if(isset($res['records'])){
+                    $complectRecs[] = $res['records'][0][1];//в массиве записи книг, которые входят в комплект
+                }else{
+                    //echo "<h1>не удалось получить запись res<br></h1>";
+                }
             }
         }
         
@@ -95,7 +102,7 @@ class SearchController extends Controller
             return view('search', compact('result', 'complectRecs', 'bookStatus', 'invNum', 'invNumFromDB'));
         }else{
             
-            return view('search', compact('result', 'complectRecs', 'invNum'));
+            return view('search', compact('result', 'complectRecs', 'invNum', 'invNumFromDB'));
         }
     }
 
