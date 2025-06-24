@@ -12,25 +12,29 @@ class SearchController extends Controller
 {
     public function search(Request $request)
     {
-       global $invNumFromDB;
-
+        global $invNumFromDB;
+        $pref = "IN=";//префикс по умолчанию
         $validated = $request->validate([
             'inputNumber' => 'required|string',
-            'selection' => 'required|string',
         ]);
         $irbis = new \irbis64('127.0.0.1', 6666, '1', '1', 'IBIS');
         if ($irbis->login()) {
             //echo "Logged in successfully.<br>";
-            if($validated['selection'] == 'i'){
-                $res = $irbis->records_search('I='.$validated['inputNumber'], 10, 1);
-            }
-            if($validated['selection'] == 'k'){
-                $res = $irbis->records_search('K='.$validated['inputNumber'], 10, 1);
-            }
-            if($validated['selection'] == 'in'){
+            
                 $res = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1);//для вывода инфо о книге
+                if(!isset($res['records'])){//если запись не найдена по IN= ищем по INS=
+                    $res = $irbis->records_search('INS='.$validated['inputNumber'], 10, 1);
+                    $pref = 'INS=';
+                    if(!isset($res['records'])){//если запись не найдена по INS= ищем по EXU=
+                        $res = $irbis->records_search('EXU='.$validated['inputNumber'], 10, 1);
+                        $pref = 'EXU=';
+                        if(!isset($res['records'])){//запись не найдена
+                            dd("запись не найдена по префиксам IN, INS, EXU");
+                        }
+                    }
+                }         
+                $resAll = $irbis->records_search($pref.$validated['inputNumber'], 10, 1, $format = '@all');//для вывода инфо о статусе
                 
-                $resAll = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1, $format = '@all');//для вывода инфо о статусе
                 if(isset($resAll['records'])){                    
                     foreach($resAll['records'][0] as $record){
                      
@@ -61,7 +65,7 @@ class SearchController extends Controller
                 }   
                 
             //dd($resAll['records']);
-            }
+            
         }
         if(isset($book)){
             if($book != "spisan"){
@@ -85,8 +89,12 @@ class SearchController extends Controller
             $complect = explode("*", $res2['records'][0][1]);
             for($i=0; $i<count($complect)-1; $i++){
                 $res = $irbis->records_search('IN='.$complect[$i], 10, 1);
-
-                $complectRecs[] = $res['records'][0][1];//в массиве записи книг, которые входят в комплект
+                //dd($res['records'][0][1]);
+                if(isset($res['records'][0][1])){
+                    $complectRecs[] = $res['records'][0][1];//в массиве записи книг, которые входят в комплект
+                }else{
+                    dd("проверьте запись с комплектами в БД RDRKV2");
+                }
             }
         }
         

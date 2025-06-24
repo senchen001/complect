@@ -9,20 +9,13 @@
                 <h3 class="mb-4 text-center">Введите данные</h3>
                 <form method="POST" action="{{ route('search') }}">
                     @csrf
-                    <div class="mb-3">
-                        <label for="selection">тип поиска</label>
-                        <select name="selection" id="selection">
-                            <option value="in">I - инвентарный номер (поле 910)</option>
-                            <option value="i">I - шифр документа (поле 903)</option>
-                            <option value="k">K - ключевые слова</option>
-                        </select>
-                    </div>
+                    
                     <div class="mb-3">
                         <input 
                            
                           name="inputNumber" 
                           class="form-control" 
-                          placeholder="Введите число" 
+                          placeholder="Введите инвентарный номер" 
                           
                           required />
                     </div>
@@ -44,7 +37,13 @@
                                 echo "<h5>инвентарный номер:</h5>".$invNum."<br>";
                                 echo "<h5>инвентарный номер из БД:</h5>".$invNumFromDB."<br>";
                                 if(isset($bookStatus)){
-                                    echo "<h5>статус:</h5>".$bookStatus."<br>";
+                                    
+                                    if($bookStatus=="Утерян" || $bookStatus=="Списан"){
+                                        
+                                        echo "<div style='color:red;'><h5>статус:</h5>".$bookStatus."</div><br>";    
+                                    }else{
+                                        echo "<h5>статус:</h5>".$bookStatus."<br>";
+                                    }
                                 }else{
                                     echo "<h5>не удалось получить статус</h5>";
                                 }
