@@ -79,19 +79,21 @@ class SearchController extends Controller
 
         
         $result = $res;
-        $irbis->set_db('RDRKV2');
+
+        //////////////////////////////////////////////////////////// Соберем комплект
+        $irbis->set_db('RDRKV2');        
         $res2 = $irbis->records_search('IN='.$validated['inputNumber'],  10, 1);//инвентарные номера записей в комплекте
         //dd($res2['records'][0][1]);
         $complectRecs = Array();
+        
         $irbis->set_db('IBIS');
 
         if(isset($res2['records'][0][1])){
             $complect = explode("*", $res2['records'][0][1]);
             for($i=0; $i<count($complect)-1; $i++){
                 $res = $irbis->records_search('IN='.$complect[$i], 10, 1);
-                //dd($res['records'][0][1]);
                 if(isset($res['records'][0][1])){
-                    $complectRecs[] = $res['records'][0][1];//в массиве записи книг, которые входят в комплект
+                    $complectRecs[] = $res['records'][0][1] . "<h5>Инвентарный номер: ".$complect[$i]."</h5>";//в массиве записи книг, которые входят в комплект
                 }else{
                     dd("проверьте запись с комплектами в БД RDRKV2");
                 }

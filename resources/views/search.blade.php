@@ -62,11 +62,11 @@
                         <?php
                         if(isset($complectRecs)){
                             if(count($complectRecs) > 0){                            
-                                echo "<h2>Записи в комплекте</h2><ul>";
+                                echo "<h2>Записи в комплекте</h2><ol>";
                                 foreach ($complectRecs as $rec) {
                                     echo "<li>".$rec."</li>";
                                 }
-                                echo "</ul>";
+                                echo "</ol>";
                             }
                         }
                         ?>  
