@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SearchReaderController;
 use App\Http\Controllers\makeComplectController;
+use App\Http\Controllers\InventoryController;
 
 Route::get('/', function () {
     return view('search');
@@ -14,3 +15,5 @@ Route::post('/searchReader', [SearchReaderController::class, 'searchReader'])->n
 
 Route::get('/makeComplect', [makeComplectController::class, 'show'])->name('makeComplect');
 Route::post('/store', [makeComplectController::class, 'store'])->name('store');
+
+Route::get('/inventory', [InventoryController::class, 'show'])->name('inventory');

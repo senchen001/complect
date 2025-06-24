@@ -15,9 +15,9 @@
                     <div class="mb-3">
                         <input 
                            
-                          name="inputNumber" 
+                          name="reader" 
                           class="form-control" 
-                          placeholder="ФИО или ID читателя" 
+                          placeholder="ID читателя" 
                           
                           required />
                     </div>
@@ -25,6 +25,14 @@
                         <button type="submit" class="btn btn-primary btn-lg">Найти</button>
                     </div>
                 </form>
+                <br>
+                <p>
+                    
+                @if(session('reader'))
+                    читатель: {{ session('reader') }}
+                @endif
+                    
+                </p>
                 <br>
 <!--               Форма поиска экземпляра                   -->
                 <form method="POST" action="{{ route('search') }}">

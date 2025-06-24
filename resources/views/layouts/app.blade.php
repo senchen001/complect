@@ -32,6 +32,9 @@
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="/">Книговыдача</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{{ route('inventory') }}">Проверка фонда</a>
             </li>    
         </ul>
         </div>

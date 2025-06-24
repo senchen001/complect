@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+
 // Подключаем класс irbis64
 require_once app_path('Http/Controllers/irbis_class.php');
 
