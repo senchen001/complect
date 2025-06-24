@@ -7,6 +7,26 @@
         <div class="col-md-6">
             <div class="card shadow-sm p-4">
                 <h3 class="mb-4 text-center">Введите данные</h3>
+<!--               Форма поиска читателя                   -->
+
+                <form method="POST" action="{{ route('searchReader') }}">
+                    @csrf
+                    
+                    <div class="mb-3">
+                        <input 
+                           
+                          name="inputNumber" 
+                          class="form-control" 
+                          placeholder="ФИО или ID читателя" 
+                          
+                          required />
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg">Найти</button>
+                    </div>
+                </form>
+                <br>
+<!--               Форма поиска экземпляра                   -->
                 <form method="POST" action="{{ route('search') }}">
                     @csrf
                     
@@ -20,7 +40,7 @@
                           required />
                     </div>
                     <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg">Выполнить</button>
+                        <button type="submit" class="btn btn-primary btn-lg">Найти</button>
                     </div>
                 </form>
                 
@@ -47,8 +67,6 @@
                                 }else{
                                     echo "<h5>не удалось получить статус</h5>";
                                 }
-                            
-                            echo '<button type="button" class="btn btn-primary">Добавить в комплект</button>';
                             
                             echo "<br><hr><br>";
                             }
