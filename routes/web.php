@@ -17,3 +17,4 @@ Route::get('/makeComplect', [makeComplectController::class, 'show'])->name('make
 Route::post('/store', [makeComplectController::class, 'store'])->name('store');
 
 Route::get('/inventory', [InventoryController::class, 'show'])->name('inventory');
+Route::post('/invApprove', [InventoryController::class, 'invApprove'])->name('invApprove');
