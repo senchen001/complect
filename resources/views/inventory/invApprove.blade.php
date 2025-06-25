@@ -50,6 +50,7 @@
         <div class="row">
             {{ $bookDescr }}
         </div>
+        <input type="hidden" class="form-control" name="bookDescr" value="{{ $bookDescr }}">
         <br>
         <button type="submit" class="btn btn-success">Подтвердить</button>
     </form>

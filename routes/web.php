@@ -20,6 +20,7 @@ Route::get('/inventory', [InventoryController::class, 'show'])->name('inventory'
 Route::post('/invApprove', [InventoryController::class, 'invApprove'])->name('invApprove');
 Route::post('/invFind', [InventoryController::class, 'invFind'])->name('invFind');
 Route::post('/approveAccepted', [InventoryController::class, 'approveAccepted'])->name('approveAccepted');
+//Route::get('/approveSuccess', [InventoryController::class, 'approveSuccess']);
 
 Auth::routes();
 Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');

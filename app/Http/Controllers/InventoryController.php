@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\InventoryApproval;
 
 // Подключаем класс irbis64
 require_once app_path('Http/Controllers/irbis_class.php');
@@ -14,8 +15,25 @@ class InventoryController extends Controller
         return view('inventory.index');
     }
 
+    public function approveSuccess(){
+        return view('approveSuccess'); 
+    }
+
     public function approveAccepted(Request $request){
-        dd($request);
+        //dd($request);
+        $validated = $request->validate([
+        'booksNum' => 'required|integer|min:1'
+        ]);
+        // Создание записи в базе данных
+        InventoryApproval::create([
+            'labrarian' => auth()->user()->name,
+            'stor_loc' => $request->input('storLoc'),
+            'place_code' => $request->input('rastShifr'),
+            'inv_num' => $request->input('invNum'),
+            'copies_count' => $validated['booksNum'],
+            'book_descr' => $request->input('bookDescr')
+            ]);
+        return view('inventory.invApproved');
     }
 
     public function invFind(Request $request){
