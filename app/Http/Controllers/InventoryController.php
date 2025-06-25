@@ -14,6 +14,10 @@ class InventoryController extends Controller
         return view('inventory.index');
     }
 
+    public function approveAccepted(Request $request){
+        dd($request);
+    }
+
     public function invFind(Request $request){
         $librarian = auth()->user()->name;
         global $invNumFromDB;
@@ -56,7 +60,7 @@ class InventoryController extends Controller
                 }
                
             $bookDescr = $bookShortRec['records'][0][1];
-            dd($bookDescr);    
+            //dd($bookDescr);    
 
             //dd($book['records'][0]);
             if(isset($book['records'])){                    
@@ -91,7 +95,9 @@ class InventoryController extends Controller
                 //dd($bookFound);
                 //////////место хранения
                 $storLocFound = $this->getStorLoc($validated['storLoc'], $bookFound);
-                $rastShiftFound = $this->getRastShifr($bookFound);
+                $rastShifrFound = $this->getRastShifr($bookFound);
+                $invNum = $validated['invNum'];
+                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum'));
         }
     }//////////////////////////end of invFind()
 
@@ -120,7 +126,7 @@ class InventoryController extends Controller
         if($DPos!==false){
             $foundStorLoc = Array();
                 for($x = $DPos+2; $x < count($bookFoundRec)-1; $x++){
-                    if($bookFoundRec[$x]=="\\"){
+                    if($bookFoundRec[$x]=="\\" || $bookFoundRec[$x]=="^"){
                         break;
                     }
                 $foundStorLoc[] = $bookFoundRec[$x];
