@@ -18,6 +18,8 @@ Route::post('/store', [makeComplectController::class, 'store'])->name('store');
 
 Route::get('/inventory', [InventoryController::class, 'show'])->name('inventory');
 Route::post('/invApprove', [InventoryController::class, 'invApprove'])->name('invApprove');
+
 Auth::routes();
+Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
