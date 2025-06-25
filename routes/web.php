@@ -18,6 +18,7 @@ Route::post('/store', [makeComplectController::class, 'store'])->name('store');
 
 Route::get('/inventory', [InventoryController::class, 'show'])->name('inventory');
 Route::post('/invApprove', [InventoryController::class, 'invApprove'])->name('invApprove');
+Route::post('/invFind', [InventoryController::class, 'invFind'])->name('invFind');
 
 Auth::routes();
 Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');

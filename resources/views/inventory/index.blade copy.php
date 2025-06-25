@@ -12,37 +12,37 @@
         <br>
         <div class="row">
             <div class="col-md-3">
-                <label for="db">База данных:</label>
+                <label for="simple-select">База данных:</label>
             </div>
             <div class="col-md-3">
-                <select id="db" name="db"> <!-- Добавлен атрибут name -->
-                    <option value="IBIS">IBIS</option>
-                    <option value="DB1">DB1</option>
-                    <option value="DB2">DB2</option>
+                <select id="db">
+                    <option value="1">IBIS</option>
+                    <option value="2">DB 1</option>
+                    <option value="3">DB 2</option>
                 </select>
             </div>
         </div>
         <br>
         <div class="row">
             <div class="col-md-3">
-                <label for="storLoc">Место хранения:</label>
+                <label for="simple-select">Место хранения:</label>
             </div>
             <div class="col-md-3">
-                <select id="storLoc" name="storLoc"> <!-- Добавлен атрибут name -->
-                    
-                    <option value="Хранилище1">Хранилище1</option>
-                    <option value="Хранилище2">Хранилище2</option>
-                    <option value="Читальный_зал">Читальный_зал</option>
+                <select id="storLoc">
+                    <option value="" selected disabled>Место хранения</option>
+                    <option value="1">Хранилище 1</option>
+                    <option value="2">Хранилище 1</option>
+                    <option value="3">Читальный зал</option>
                 </select>
             </div>
         </div>
         <br>
         <div class="row">
             <div class="col-md-3">
-                <label for="rastShifr">Расстановочный шифр:</label>
+                <label for="simple-select">Расстановочный шифр:</label>
             </div>
             <div class="col-md-3">
-                <select id="rastShifr" name="rastShifr"> <!-- Добавлен атрибут name -->
+                <select id="rastShifr">
                     <option value="1">Шифр 1</option>
                     <option value="2">Шифр 2</option>
                     <option value="3">Шифр 3</option>
@@ -51,16 +51,15 @@
         </div>
         <br>
         <div class="form-group">
-            <label for="invNum">Инвентаный номер экземпляра</label>
+            <label for="description">Инвентаный номер экземпляра</label>
             <input type="text" class="form-control" name="invNum" placeholder="1" required>
         </div>
         <br>
         <div class="form-group">
-            <label for="booksNum">Количество экземпляров</label>
+            <label for="description">Колличество экземпляров</label>
             <input type="text" class="form-control" name="booksNum" required>
         </div>
-        <br>
-        <button type="submit" class="btn btn-success">Найти</button>
+        <button type="submit" class="btn btn-success">Подтвердить</button>
     </form>
 </div>
 @endsection
