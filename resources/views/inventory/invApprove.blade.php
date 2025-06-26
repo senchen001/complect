@@ -10,9 +10,9 @@
             <div class="col-md-3">{{ Auth::user()->name }}</div>
             <input type="hidden" class="form-control" name="librarian" value="{{ Auth::user()->name }}">
         </div>
+        <hr>
         <br>
-       
-        
+              
         <div class="row">
             <div class="col-md-3">
                 <label for="storLoc">Статус инвентаризации:</label>
@@ -24,9 +24,10 @@
                 @else
                     <p class="text-danger">экземпляр не прошел инвентаризацию</p>
                 @endif   
-            </div>
-            
+            </div>            
         </div>
+
+        <hr>
 
         <div class="row">
             <div class="col-md-3">
@@ -37,6 +38,7 @@
             </div>
             <input type="hidden" class="form-control" name="db" value="{{ $db }}">
         </div>
+        <hr>
         <br>
         <div class="row">
             <div class="col-md-3">
@@ -47,6 +49,7 @@
             </div>
             <input type="hidden" class="form-control" name="storLoc" value="{{ $storLocFound }}">
         </div>
+        <hr>
         <br>
         <div class="row">
             <div class="col-md-3">
@@ -57,6 +60,7 @@
             </div>
             <input type="hidden" class="form-control" name="rastShifr" value="{{ $rastShifrFound }}">
         </div>
+        <hr>
         <br>
         <div class="row">
             <div class="col-md-3">
@@ -67,18 +71,25 @@
             </div>
             <input type="hidden" class="form-control" name="invNum" value="{{ $invNum }}">
         </div>
+        <hr>
         <br>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Экземпляр:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $bookDescr }}
+            </div>
+            <input type="hidden" class="form-control" name="bookDescr" value="{{ $bookDescr }}">
+        </div>
+
         @if(!$invStatus)
         <div class="form-group">
             <label for="booksNum">Количество экземпляров</label>
             <input type="text" class="form-control" name="booksNum" value="1">
         </div>
         @endif
-        <div class="row">
-            {{ $bookDescr }}
-        </div>
-        <input type="hidden" class="form-control" name="bookDescr" value="{{ $bookDescr }}">
-        <br>
+        
         
         @if(!$invStatus)
             <button type="submit" class="btn btn-success">Инвентаризировать</button>
