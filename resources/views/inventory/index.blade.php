@@ -7,7 +7,16 @@
         @csrf
         <div class="row">
             <div class="col-md-3">Кто проверяет:</div>
-            <div class="col-md-3">{{ Auth::user()->name }}</div>
+            <div class="col-md-3">
+            <?php
+            if(isset(Auth::user()->name)){
+                echo Auth::user()->name;
+            }else {
+                header("Location: /login");
+                exit(); // Не забудьте вызвать exit() после редиректа
+            }
+            ?>    
+            </div>
         </div>
         <br>
         <div class="row">

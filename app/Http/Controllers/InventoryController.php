@@ -115,9 +115,20 @@ class InventoryController extends Controller
                 $storLocFound = $this->getStorLoc($validated['storLoc'], $bookFound);
                 $rastShifrFound = $this->getRastShifr($bookFound);
                 $invNum = $validated['invNum'];
-                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum'));
+                $invStatus = $this->getInventoryStatus($invNum);
+                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus'));
         }
     }//////////////////////////end of invFind()
+
+    public function getInventoryStatus($invNumber){//проверим прошла ли книга инвентаризацию
+        $record = InventoryApproval::where('inv_num', $invNumber)->first();
+        if($record){
+            $status = true; //книга прошла инвентаризацию
+        }else{
+            $status = false;// книга не прошла инвентаризацию
+        }
+        return $status;
+    }
 
     public function getRastShifr($bookfound){
         $RPos = strpos($bookfound, "^R");//найдем позицию ^R, там хранится расстановочный шифр
@@ -134,7 +145,9 @@ class InventoryController extends Controller
         }else{
             $rastShifrFound = "расстановочный шифр не найден";
         }
-        $rastShifrFound = implode("", $rastShifrFound);
+        if(is_array($rastShifrFound)){
+            $rastShifrFound = implode("", $rastShifrFound);
+        }
         return $rastShifrFound;
     }
     
