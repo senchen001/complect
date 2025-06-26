@@ -23,7 +23,7 @@
             </div>
         </div>
         <br>
-        <div class="row">
+       <!-- <div class="row">
             <div class="col-md-3">
                 <label for="simple-select">Место хранения:</label>
             </div>
@@ -48,7 +48,7 @@
                     <option value="3">Шифр 3</option>
                 </select>
             </div>
-        </div>
+        </div>-->
         <br>
         <div class="form-group">
             <label for="description">Инвентаный номер экземпляра</label>

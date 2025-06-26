@@ -30,6 +30,16 @@
 
         <div class="row">
             <div class="col-md-3">
+                <label for="storLoc">База данных:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $db }}
+            </div>
+            <input type="hidden" class="form-control" name="db" value="{{ $db }}">
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-3">
                 <label for="storLoc">Место хранения:</label>
             </div>
             <div class="col-md-3">

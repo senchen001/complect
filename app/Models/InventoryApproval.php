@@ -14,6 +14,7 @@ class InventoryApproval extends Model
         'place_code',
         'inv_num',
         'copies_count',
-        'book_descr'
+        'book_descr',
+        'db'
     ];
 }

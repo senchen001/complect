@@ -31,7 +31,8 @@ class InventoryController extends Controller
             'place_code' => $request->input('rastShifr'),
             'inv_num' => $request->input('invNum'),
             'copies_count' => $validated['booksNum'],
-            'book_descr' => $request->input('bookDescr')
+            'book_descr' => $request->input('bookDescr'),
+            'db' => $request->input('db')
             ]);
         return view('inventory.invApproved');
     }
@@ -40,18 +41,25 @@ class InventoryController extends Controller
         $librarian = auth()->user()->name;
         global $invNumFromDB;
 
-        $validated = $request->validate([
+        /*$validated = $request->validate([
             'db' => 'required|string',
             'storLoc' => 'required|string',
             'rastShifr' => 'required|string',
             'invNum' => 'required|string',
             'booksNum' => 'required|string',
+        ]);*/
+
+         $validated = $request->validate([
+            'db' => 'required|string',
+            'invNum' => 'required|string',
+            'booksNum' => 'required|string',
         ]);
         
-
-        $irbis = new \irbis64('127.0.0.1', 6666, '1', '1', 'IBIS');
+        $db = $validated['db'];
+        $irbis = new \irbis64('127.0.0.1', 6666, '1', '1', $db);
         if ($irbis->login()) {
             $book = $irbis->records_search('IN='.$validated['invNum'], 10, 1, $format = '@all');//для вывода инфо о книге
+                
                 if(!isset($book['records'])){//если запись не найдена по IN= ищем по INS=
                     $book = $irbis->records_search('INS='.$validated['invNum'], 10, 1);
                     $pref = 'INS=';
@@ -83,9 +91,11 @@ class InventoryController extends Controller
             //dd($book['records'][0]);
             if(isset($book['records'])){                    
                     foreach($book['records'][0] as $record){
-                     
+                       //dd($book['records'][0]);
+                       
                         $invNum = $validated['invNum'];
                         $found = $this -> isInvNum($record, $invNum, $invNumFromDB);//проверяем содержит ли запись инвентарный номер
+                        
                         if($found!==false){
                             $found2 = strpos($record, "910/");//найдем запись экземпляра
                             if($found2!==false){
@@ -102,6 +112,7 @@ class InventoryController extends Controller
                         }
                     }
                 }else{
+                    dd("book not found");
                     echo "<h1>Не удалось получить всю запись</h1>";
                     echo "<pre>";
                     echo "краткая запись в формате brief:<br>";
@@ -112,11 +123,16 @@ class InventoryController extends Controller
                 } 
                 //dd($bookFound);
                 //////////место хранения
-                $storLocFound = $this->getStorLoc($validated['storLoc'], $bookFound);
-                $rastShifrFound = $this->getRastShifr($bookFound);
+                if(isset($bookFound)){
+                    $storLocFound = $this->getStorLoc($bookFound);
+                    $rastShifrFound = $this->getRastShifr($bookFound);
+                }else{
+                    $storLocFound = "не определен, экземпляр утерян или списан";
+                    $rastShifrFound = "не определен, экземпляр утерян или списан";
+                }
                 $invNum = $validated['invNum'];
                 $invStatus = $this->getInventoryStatus($invNum);
-                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus'));
+                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db'));
         }
     }//////////////////////////end of invFind()
 
@@ -151,7 +167,7 @@ class InventoryController extends Controller
         return $rastShifrFound;
     }
     
-    public function getStorLoc($storloc, $bookFoundRec){
+    public function getStorLoc($bookFoundRec){
         $DPos = strpos($bookFoundRec, "^D");//найдем позицию ^D, там храниться storLoc
         $bookFoundRec = mb_str_split($bookFoundRec);//сделаем из строки массив
         if($DPos!==false){

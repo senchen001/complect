@@ -26,18 +26,18 @@
             <div class="col-md-3">
                 <select id="db" name="db"> <!-- Добавлен атрибут name -->
                     <option value="IBIS">IBIS</option>
-                    <option value="DB1">DB1</option>
+                    <option value="HOMELIB">HOMELIB</option>
                     <option value="DB2">DB2</option>
                 </select>
             </div>
         </div>
         <br>
-        <div class="row">
+       <!-- <div class="row">
             <div class="col-md-3">
                 <label for="storLoc">Место хранения:</label>
             </div>
             <div class="col-md-3">
-                <select id="storLoc" name="storLoc"> <!-- Добавлен атрибут name -->
+                <select id="storLoc" name="storLoc"> 
                     
                     <option value="Хранилище1">Хранилище1</option>
                     <option value="Хранилище2">Хранилище2</option>
@@ -51,13 +51,13 @@
                 <label for="rastShifr">Расстановочный шифр:</label>
             </div>
             <div class="col-md-3">
-                <select id="rastShifr" name="rastShifr"> <!-- Добавлен атрибут name -->
+                <select id="rastShifr" name="rastShifr"> 
                     <option value="1">Шифр 1</option>
                     <option value="2">Шифр 2</option>
                     <option value="3">Шифр 3</option>
                 </select>
             </div>
-        </div>
+        </div>-->
         <br>
         <div class="form-group">
             <label for="invNum">Инвентаный номер экземпляра</label>
@@ -66,7 +66,7 @@
         <br>
         <div class="form-group">
             <label for="booksNum">Количество экземпляров</label>
-            <input type="text" class="form-control" name="booksNum" required>
+            <input type="text" class="form-control" name="booksNum"  value="1" required>
         </div>
         <br>
         <button type="submit" class="btn btn-success">Найти</button>
