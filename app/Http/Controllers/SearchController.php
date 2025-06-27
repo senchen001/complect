@@ -15,10 +15,12 @@ class SearchController extends Controller
     {
         global $invNumFromDB;
         $pref = "IN=";//префикс по умолчанию
+        $irbisServerPort = config('app.irbisServerPort');
+
         $validated = $request->validate([
             'inputNumber' => 'required|string',
         ]);
-        $irbis = new \irbis64('127.0.0.1', 6666, '1', '1', 'IBIS');
+        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'IBIS');
         if ($irbis->login()) {
             //echo "Logged in successfully.<br>";
             
@@ -82,7 +84,10 @@ class SearchController extends Controller
         $result = $res;
 
         //////////////////////////////////////////////////////////// Соберем комплект
-        $irbis->set_db('RDRKV2');        
+        $complectDB = config('app.complectDataBase');
+        
+        $irbis->set_db($complectDB);
+                
         $res2 = $irbis->records_search('IN='.$validated['inputNumber'],  10, 1);//инвентарные номера записей в комплекте
         //dd($res2['records'][0][1]);
         $complectRecs = Array();

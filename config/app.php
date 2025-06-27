@@ -2,6 +2,8 @@
 
 return [
 
+    'complectDataBase' => env('COMPLECT_DATA_BASE', 'RDRKV2'),
+    'irbisServerPort' => env('IRBIS_SERVER_PORT', '6666'),
     /*
     |--------------------------------------------------------------------------
     | Application Name

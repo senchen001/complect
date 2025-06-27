@@ -14,10 +14,12 @@ class SearchReaderController extends Controller
     public function searchReader(Request $request)
     {
         $reader = "";
+        $irbisServerPort = config('app.irbisServerPort');
+        
         $validated = $request->validate([
             'reader' => 'required|string',
         ]);
-        $irbis = new \irbis64('127.0.0.1', 6666, '1', '1', 'RDR');
+        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDR');
         if ($irbis->login()) {
             $readerRec = $irbis->records_search('RI='.$validated['reader'], 10, 1);
             if(isset($readerRec['records'][0][1])){

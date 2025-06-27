@@ -14,12 +14,14 @@ class makeComplectController extends Controller
     }
 
     public function Store(Request $request){
+         $irbisServerPort = config('app.irbisServerPort');
+
         $validated = $request->validate([
             'complID' => 'required|string',
             'invnum' => 'required|string',
         ]);
 
-        $irbis = new \irbis64('127.0.0.1', 6666, '1', '1', 'RDRKV2');
+        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDRKV2');
         if ($irbis->login()) {
             //найдем запись комплекта с идентификатором complID
            $complRec = $irbis->records_search('I='.$validated['complID'], 10, 1, $format = '@all');

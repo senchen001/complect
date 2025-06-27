@@ -40,7 +40,7 @@ class InventoryController extends Controller
     public function invFind(Request $request){
         $librarian = auth()->user()->name;
         global $invNumFromDB;
-
+         $irbisServerPort = config('app.irbisServerPort');
         /*$validated = $request->validate([
             'db' => 'required|string',
             'storLoc' => 'required|string',
@@ -56,7 +56,7 @@ class InventoryController extends Controller
         ]);
         
         $db = $validated['db'];
-        $irbis = new \irbis64('127.0.0.1', 6666, '1', '1', $db);
+        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $db);
         if ($irbis->login()) {
             $book = $irbis->records_search('IN='.$validated['invNum'], 10, 1, $format = '@all');//для вывода инфо о книге
                 
