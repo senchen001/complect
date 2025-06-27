@@ -51,14 +51,12 @@
                         <button type="submit" class="btn btn-primary btn-lg">Найти</button>
                     </div>
                 </form>
-                
-               
-                
-                    <div class="alert alert-success mt-4" role="alert">
-                        Результат: 
-                        
+                                       
                         <?php
                         if(isset($result["records"][0])){
+
+                            echo '<div class="alert alert-success mt-4" role="alert">';
+                            
                             //dd($result["records"]);
                             foreach ($result["records"] as $item) {
                                 echo "<h5>экземпляр:</h5>".$item[1]."<br>";
@@ -78,10 +76,11 @@
                             
                             echo "<br><hr><br>";
                             }
+                        echo '</div>';
                         }
                         ?>    
                         
-                    </div>
+                    
 
                     <div>
                                                 
@@ -94,9 +93,10 @@
                                 }
                                 echo "</ol>";
                             }
+                        echo '<button type="button" class="btn btn-primary">Выдать комплект</button>';
                         }
                         ?>  
-                        <button type="button" class="btn btn-primary">Выдать комплект</button>
+                        
                     </div>
                 
             </div>

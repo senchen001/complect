@@ -61,7 +61,7 @@
         <br>
         <div class="form-group">
             <label for="invNum">Инвентаный номер экземпляра</label>
-            <input type="text" class="form-control" name="invNum" placeholder="1" required>
+            <input type="text" class="form-control" name="invNum" required>
         </div>
         <br>
         <div class="form-group">
