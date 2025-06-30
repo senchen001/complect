@@ -21,7 +21,7 @@ class giveComplectController extends Controller
         foreach($books as $book){
             $rec = explode(":", $book);//инвентарн номер лежит в конце строки после :
             $arr_len = count($rec);
-            $inventNums[] = trim($rec[$arr_len-1]);
+            $inventNums[] = trim($rec[$arr_len-1]);//массив с инвентарными номерами
         }
         foreach($inventNums as $iNum){
             echo $iNum . "<br>";
@@ -30,7 +30,8 @@ class giveComplectController extends Controller
         echo "дата выдачи: " . date('Y-m-d');
         $returnDate = $request->day;
         $giveDate = date('Y-m-d');
-        $irbisDates = $this->dateToIrbisDate($giveDate, $returnDate);
+        $irbisDates = $this->dateToIrbisDate($giveDate, $returnDate);//в массиве дата выдачи и дата возврата
+        dd($irbisDates);
     }
 
     public function dateToIrbisDate($giveDate, $returnDate){
@@ -39,7 +40,7 @@ class giveComplectController extends Controller
         //уберем "-" и склеим массив
         $giveD = explode("-", $giveDate);
         $giveD = implode("", $giveD);
-        $dates[] = $giveD;
+        $dates[] = $giveD;//значала в массив положим дату выдачи
         
         //дата возврата приходит в виде 30.06.2025
         //поменяем день и год местами и склеим массив
@@ -48,7 +49,7 @@ class giveComplectController extends Controller
         $retD[0] = $retD[2];
         $retD[2] = $d;
         $retD = implode("", $retD);
-        $dates[] = $retD;
-        dd($dates);
+        $dates[] = $retD;//положим в массив дату возврата
+        return $dates;
     }
 }
