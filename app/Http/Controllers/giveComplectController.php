@@ -51,13 +51,16 @@ class giveComplectController extends Controller
            $mfn = $readerRec['records'][0][0];
            $field_num = 40;
            //сформируем строку для записи
-           $dataToRec = $books[0];
+           // ^G - база IBIS
+           // ^D - дата выдачи
+           // ^E - дата возврата
+           // ^C - Книга
+           $dataToRec = "^GIBIS^D".$irbisDates[0]."^E".$irbisDates[1]."^C" . $books[0];
            $record = $irbis->record_read($mfn);
-            //dd($record);
            if(is_object($record)){
                 $record->addField($dataToRec, $field_num);
                 $write_result = $irbis->record_write($record->getRecordArray(), true, true);
-                dd("результат записи: " . $write_result);
+                
                 if ($write_result !== '') {
                     dd('Ошибка записи: ' . $irbis->error($write_result));
                 }
