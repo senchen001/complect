@@ -5,12 +5,19 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
+require_once app_path('Http/Controllers/irbis_class.php');
+
 class giveComplectController extends Controller
 {
     public function giveComplect(Request $request)
     {
+        $irbisServerPort = config('app.irbisServerPort');
         $books = Array();
         $inventNums = Array();
+        $librarian = $request->librarian;
+        $reader = $request->reader;
+
+
         $booksAmount = $request->booksAmount;//колличество книг в риквесте
         
         for($bookNum=1; $bookNum < $booksAmount; $bookNum++){        
@@ -31,7 +38,37 @@ class giveComplectController extends Controller
         $returnDate = $request->day;
         $giveDate = date('Y-m-d');
         $irbisDates = $this->dateToIrbisDate($giveDate, $returnDate);//в массиве дата выдачи и дата возврата
-        dd($irbisDates);
+        /////////////////////////////////////////////////////////////////////////////////////////////////
+        //////////////////////////////////////////////      запишем книги на читателя
+        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDR');
+        if ($irbis->login()) {
+            //найдем запись читателя по ID
+           $reader_arr = explode(" ", $reader);
+           $readerID = $reader_arr[0];
+            
+           $readerRec = $irbis->records_search('RI='.$readerID, 10, 1, $format = '@all');
+           
+           $mfn = $readerRec['records'][0][0];
+           $field_num = 40;
+           //сформируем строку для записи
+           $dataToRec = $books[0];
+           $record = $irbis->record_read($mfn);
+            //dd($record);
+           if(is_object($record)){
+                $record->addField($dataToRec, $field_num);
+                $write_result = $irbis->record_write($record->getRecordArray(), true, true);
+                dd("результат записи: " . $write_result);
+                if ($write_result !== '') {
+                    dd('Ошибка записи: ' . $irbis->error($write_result));
+                }
+                $irbis->logout();
+           }else{
+            dd("не удалось получить запись по mfn");
+           }
+        }else{
+            echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
+        }
+
     }
 
     public function dateToIrbisDate($giveDate, $returnDate){
