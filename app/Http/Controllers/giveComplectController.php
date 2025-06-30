@@ -9,11 +9,24 @@ class giveComplectController extends Controller
 {
     public function giveComplect(Request $request)
     {
-        $booksAmount = $request->booksAmount;
-        for($bookNum=1; $bookNum < $booksAmount; $bookNum++){
+        $books = Array();
+        $inventNums = Array();
+        $booksAmount = $request->booksAmount;//колличество книг в риквесте
         
-        $book = "book".$bookNum;
-        echo $request->$book;
+        for($bookNum=1; $bookNum < $booksAmount; $bookNum++){        
+            $book = "book".$bookNum;
+            $books[] = $request->$book;//сложим записи книг в массив
         }
+        //соберем инвентарники в массив
+        foreach($books as $book){
+            $rec = explode(":", $book);//инвентарн номер лежит в конце строки после :
+            $arr_len = count($rec);
+            $inventNums[] = trim($rec[$arr_len-1]);
+        }
+        foreach($inventNums as $iNum){
+            echo $iNum . "<br>";
+        }
+
+        dd(date('Y-m-d'));
     }
 }
