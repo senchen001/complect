@@ -26,7 +26,29 @@ class giveComplectController extends Controller
         foreach($inventNums as $iNum){
             echo $iNum . "<br>";
         }
+        echo "дата возврата: " . $request->day . "<br>";
+        echo "дата выдачи: " . date('Y-m-d');
+        $returnDate = $request->day;
+        $giveDate = date('Y-m-d');
+        $irbisDates = $this->dateToIrbisDate($giveDate, $returnDate);
+    }
 
-        dd(date('Y-m-d'));
+    public function dateToIrbisDate($giveDate, $returnDate){
+        $dates = Array(); // массив для дат в формате Ирбиса
+        //дата выдачи имеет вид 2025-06-30
+        //уберем "-" и склеим массив
+        $giveD = explode("-", $giveDate);
+        $giveD = implode("", $giveD);
+        $dates[] = $giveD;
+        
+        //дата возврата приходит в виде 30.06.2025
+        //поменяем день и год местами и склеим массив
+        $retD = explode(".", $returnDate);
+        $d = $retD[0];
+        $retD[0] = $retD[2];
+        $retD[2] = $d;
+        $retD = implode("", $retD);
+        $dates[] = $retD;
+        dd($dates);
     }
 }
