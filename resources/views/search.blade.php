@@ -97,14 +97,34 @@
                         }
                         ?>  
                         @if(isset($complectRecs))
-                        <a href="/giveComplect" class="btn btn-primary">Выдать комплект</a>
+                        
                         <div class="container mt-5">
                             <form action="/giveComplect" method="post">
+                            @csrf
+                                <input type="hidden" class="form-control" name="librarian" value="{{ Auth::user()->name }}">
+                                <input type="hidden" class="form-control" name="reader" value="{{ session('reader') }}">
+
+                                <?php
+                                if(isset($complectRecs)){
+                                    if(count($complectRecs) > 0){                            
+                                        $bookNum = 1;
+                                        foreach ($complectRecs as $rec) {
+                                            echo "<input type='hidden' name='book". $bookNum . "' value='" . $rec . "'>";
+                                            $bookNum++;
+                                        }
+                                    echo "<input type='hidden' name='booksAmount' value='".$bookNum."'>";
+                                    }
+                                }
+                                ?>  
+
                                 <div class="form-group">
                                     <label for="datepicker">Календарь</label>
-                                    <input type="text" class="form-control" id="datepicker" name="day" placeholder="Выберите дату">
+                                    <input type="text" class="form-control" id="datepicker" name="day" placeholder="Выберите дату возврата">
                                 </div>
+                                <br>
+                                @if(session('reader'))
                                 <button type="submit" class="btn btn-primary" name="send">Выдать комплект</button>
+                                @endif
                             </form>
                         </div>
                         <script>

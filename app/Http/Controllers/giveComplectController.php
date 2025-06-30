@@ -7,8 +7,13 @@ use Illuminate\Http\Request;
 
 class giveComplectController extends Controller
 {
-    public function giveComplect()
+    public function giveComplect(Request $request)
     {
-        dd("give complect");
+        $booksAmount = $request->booksAmount;
+        for($bookNum=1; $bookNum < $booksAmount; $bookNum++){
+        
+        $book = "book".$bookNum;
+        echo $request->$book;
+        }
     }
 }
