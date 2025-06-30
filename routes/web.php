@@ -5,6 +5,7 @@ use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SearchReaderController;
 use App\Http\Controllers\makeComplectController;
 use App\Http\Controllers\InventoryController;
+use App\Http\Controllers\giveComplectController;
 
 Route::get('/', function () {
     return view('search');
@@ -15,6 +16,8 @@ Route::post('/searchReader', [SearchReaderController::class, 'searchReader'])->n
 
 Route::get('/makeComplect', [makeComplectController::class, 'show'])->name('makeComplect');
 Route::post('/store', [makeComplectController::class, 'store'])->name('store');
+
+Route::get('/giveComplect', [giveComplectController::class, 'giveComplect'])->name('giveComplect');
 
 Route::get('/inventory', [InventoryController::class, 'show'])->name('inventory');
 Route::post('/invApprove', [InventoryController::class, 'invApprove'])->name('invApprove');

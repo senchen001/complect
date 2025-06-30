@@ -43,6 +43,8 @@ class makeComplectController extends Controller
            }else{
             dd("не удалось получить запись по mfn");
            }
+        }else{
+            echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
 
         return view('makeComplect.store');

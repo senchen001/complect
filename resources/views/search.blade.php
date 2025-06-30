@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
-
+<script src="js/jquery-3.5.1.slim.min.js"></script>
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
@@ -93,10 +93,34 @@
                                 }
                                 echo "</ol>";
                             }
-                        echo '<button type="button" class="btn btn-primary">Выдать комплект</button>';
+                        
                         }
                         ?>  
+                        @if(isset($complectRecs))
+                        <a href="/giveComplect" class="btn btn-primary">Выдать комплект</a>
+                        <div class="container mt-5">
+                            <form action="/giveComplect" method="post">
+                                <div class="form-group">
+                                    <label for="datepicker">Календарь</label>
+                                    <input type="text" class="form-control" id="datepicker" name="day" placeholder="Выберите дату">
+                                </div>
+                                <button type="submit" class="btn btn-primary" name="send">Выдать комплект</button>
+                            </form>
+                        </div>
+                        <script>
+                            $(document).ready(function() {
+                                $('#datepicker').datepicker({
+                                format: 'dd.mm.yyyy', // Формат даты
+                                language: 'ru', // Язык
+                                autoclose: true // Закрытие после выбора даты
+                                });
+                            });
+                        </script>
                         
+                        <script src="js/bootstrap.bundle.min.js"></script>
+                        <script src="js/bootstrap-datepicker.min.js"></script>
+                        <script src="js/bootstrap-datepicker.ru.min.js"></script>
+                        @endif
                     </div>
                 
             </div>

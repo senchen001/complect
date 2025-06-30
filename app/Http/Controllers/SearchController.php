@@ -69,6 +69,8 @@ class SearchController extends Controller
                 
             //dd($resAll['records']);
             
+        }else{
+            echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
         if(isset($book)){
             if($book != "spisan"){
