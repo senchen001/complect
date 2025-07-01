@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\borrowedBook;
 
 require_once app_path('Http/Controllers/irbis_class.php');
 
@@ -38,6 +39,7 @@ class giveComplectController extends Controller
         $returnDate = $request->day;
         $giveDate = date('Y-m-d');
         $irbisDates = $this->dateToIrbisDate($giveDate, $returnDate);//в массиве дата выдачи и дата возврата
+
         /////////////////////////////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////      запишем книги на читателя
         $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDR');
@@ -64,10 +66,23 @@ class giveComplectController extends Controller
                 if ($write_result !== '') {
                     dd('Ошибка записи: ' . $irbis->error($write_result));
                 }
+
+
                 $irbis->logout();
            }else{
             dd("не удалось получить запись по mfn");
            }
+
+           //занесем данные о выданной книге в базу mysql
+           borrowedBook::create([
+            'labrarian' => $librarian,
+            'reader' => $reader,
+            'db' => "IBIS",
+            'inv_num' => $inventNums[0],
+            'giveDate' => $irbisDates[0],
+            'returnDate' => $irbisDates[1],
+            'book_descr' => $books[0]            
+            ]);
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
