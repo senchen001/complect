@@ -101,12 +101,11 @@
                         <div class="container mt-5">
                             <form action="/giveComplect" method="post">
                             @csrf
-                                @if(Auth::check() && Auth::user()->name)
+                                @if(Auth::check() && Auth::user()->name && session('reader') && count($complectRecs) > 1)
                                 <input type="hidden" class="form-control" name="librarian" value="{{ Auth::user()->name }}">
-                                @endif
-                                @if(session('reader'))
+                                
                                 <input type="hidden" class="form-control" name="reader" value="{{ session('reader') }}">
-                                @endif
+                                
                                 <?php
                                 if(isset($complectRecs)){
                                     if(count($complectRecs) > 0){                            
@@ -122,10 +121,10 @@
 
                                 <div class="form-group">
                                     <label for="datepicker">Календарь</label>
-                                    <input type="text" class="form-control" id="datepicker" name="day" placeholder="Выберите дату возврата">
+                                    <input type="text" class="form-control" id="datepicker" name="day" placeholder="Выберите дату возврата" autocomplete="off">
                                 </div>
                                 <br>
-                                @if(Auth::check() && Auth::user()->name && session('reader'))
+                                
                                 <button type="submit" class="btn btn-primary" name="send">Выдать комплект</button>
                                 @endif
                             </form>
