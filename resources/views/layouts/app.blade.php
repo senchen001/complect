@@ -28,6 +28,11 @@
         .dropdown-toggle::after {
             vertical-align: middle;
         }
+        .nav-item.active .nav-link {
+            background-color: #007bff; /* Яркий цвет фона */
+            color: white; /* Цвет текста */
+            font-weight: bold; /* Жирный текст */
+        }
     </style>
 </head>
 <body>
@@ -38,13 +43,13 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item">
+                    <li class="nav-item {{ request()->routeIs('makeComplect') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('makeComplect') }}">Комплекты</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item {{ request()->is('/') ? 'active' : '' }}">
                         <a class="nav-link" href="/">Книговыдача</a>
                     </li>
-                    <li class="nav-item">
+                    <li class="nav-item {{ request()->routeIs('inventory') ? 'active' : '' }}">
                         <a class="nav-link" href="{{ route('inventory') }}">Проверка фонда</a>
                     </li>    
                 </ul>
