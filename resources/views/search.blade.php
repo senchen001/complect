@@ -126,6 +126,8 @@
                                 <br>
                                 
                                 <button type="submit" class="btn btn-primary" name="send">Выдать комплект</button>
+                                @else
+                                <h4>Данный экземпляр не входит в комплект</h4>
                                 @endif
                             </form>
                         </div>
