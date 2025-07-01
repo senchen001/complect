@@ -17,8 +17,6 @@ class giveComplectController extends Controller
         $inventNums = Array();
         $librarian = $request->librarian;
         $reader = $request->reader;
-
-
         $booksAmount = $request->booksAmount;//колличество книг в риквесте
         
         for($bookNum=1; $bookNum < $booksAmount; $bookNum++){        
@@ -31,11 +29,9 @@ class giveComplectController extends Controller
             $arr_len = count($rec);
             $inventNums[] = trim($rec[$arr_len-1]);//массив с инвентарными номерами
         }
-        foreach($inventNums as $iNum){
-            echo $iNum . "<br>";
-        }
-        echo "дата возврата: " . $request->day . "<br>";
-        echo "дата выдачи: " . date('Y-m-d');
+        
+        //echo "дата возврата: " . $request->day . "<br>";
+        //echo "дата выдачи: " . date('Y-m-d');
         $returnDate = $request->day;
         $giveDate = date('Y-m-d');
         $irbisDates = $this->dateToIrbisDate($giveDate, $returnDate);//в массиве дата выдачи и дата возврата
@@ -57,7 +53,11 @@ class giveComplectController extends Controller
            // ^D - дата выдачи
            // ^E - дата возврата
            // ^C - Книга
-           $dataToRec = "^GIBIS^D".$irbisDates[0]."^E".$irbisDates[1]."^C" . $books[0];
+           // ^B - инвентарный номер
+           /////////////////////////////////////////////// запишем книги на читателя
+           $x = 0; //счетчик для инвентарников
+           foreach($books as $book){
+           $dataToRec = "^GIBIS^D".$irbisDates[0]."^E".$irbisDates[1]."^C" . $book . "^B" . $inventNums[$x];
            $record = $irbis->record_read($mfn);
            if(is_object($record)){
                 $record->addField($dataToRec, $field_num);
@@ -68,7 +68,7 @@ class giveComplectController extends Controller
                 }
 
 
-                $irbis->logout();
+                //$irbis->logout();
            }else{
             dd("не удалось получить запись по mfn");
            }
@@ -78,15 +78,17 @@ class giveComplectController extends Controller
             'labrarian' => $librarian,
             'reader' => $reader,
             'db' => "IBIS",
-            'inv_num' => $inventNums[0],
+            'inv_num' => $inventNums[$x],
             'giveDate' => $irbisDates[0],
             'returnDate' => $irbisDates[1],
-            'book_descr' => $books[0]            
+            'book_descr' => $book            
             ]);
+            $x++;
+        }////////////////////////////конец записи книги на читателя
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
-
+        return view('givenComplectRecorded');
     }
 
     public function dateToIrbisDate($giveDate, $returnDate){
