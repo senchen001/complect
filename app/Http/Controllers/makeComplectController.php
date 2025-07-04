@@ -37,7 +37,7 @@ class makeComplectController extends Controller
                             $fieldValue = $record->getField(1033, $i, '*');
                             if (!empty($fieldValue)) {
                                 $field1033_values[] = [
-                                    'mfn' => $mfn,
+                                    'complNum' => $record->getField(903, 1),
                                     'occurrence' => $i,
                                     'value' => $fieldValue
                                 ];
@@ -49,24 +49,26 @@ class makeComplectController extends Controller
         }
     }
     $complects = $this->makeComplect($field1033_values);
-    dd($complects);
-        return view('makeComplect.index');
+    //dd($complects);
+        return view('makeComplect.index', compact('complects'));
     }
 
     public function makeComplect($f1033_values){
         $complects = [];
-    
+        $y = 1;
         foreach($f1033_values as $value){
-            $mfn = $value['mfn'];
+            $complNum = $value['complNum'];
             
             // Если комплекта с таким MFN еще нет, создаем его
-            if (!isset($complects[$mfn])) {
-                $complects[$mfn] = [];
+            if (!isset($complects[$y])) {
+                $complects[$y] = [];
             }
             
             // Добавляем значение в соответствующий комплект
-            $complects[$mfn][] = $value;
+            $complects[$y][] = $value;
+            $y++;
         }
+        //dd($complects);
         return $complects;
     }
 
