@@ -23,12 +23,16 @@
         $value = $item[0]['value'];
         $complNum = $item[0]['complNum'];
         $occurrence = $item[0]['occurrence'];
+        $status = $item['status'] ?? true; // получаем статус комплекта, по умолчанию доступен
         
         if (!isset($grouped[$complNum])) {
-            $grouped[$complNum] = [];
+            $grouped[$complNum] = [
+                'status' => $status,
+                'items' => []
+            ];
         }
         
-        $grouped[$complNum][] = [
+        $grouped[$complNum]['items'][] = [
             'value' => $value,
             'occurrence' => $occurrence
         ];
@@ -36,25 +40,34 @@
     
 @endphp
 
-@foreach ($grouped as $complNum => $values)
-    <h3>Комплект: {{ $complNum }}</h3>
-    <ul class="list-group mb-3">
-        @foreach ($values as $item)
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                <span>{{ $item['value'] }}</span>
-                <form action="{{ route('removeFromComplect') }}" method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот экземпляр из комплекта?')">
-                    @csrf
-                    @method('DELETE')
-                    <input type="hidden" name="complID" value="{{ $complNum }}">
-                    <input type="hidden" name="invnum" value="{{ $item['value'] }}">
-                    <input type="hidden" name="occurrence" value="{{ $item['occurrence'] }}">
-                    <button type="submit" class="btn btn-danger btn-sm">
-                        <i class="bi bi-trash"></i> Удалить
-                    </button>
-                </form>
-            </li>
-        @endforeach
-    </ul>
+@foreach ($grouped as $complNum => $complectData)
+    <div class="mb-4">
+        <h3 class="d-flex align-items-center">
+            Комплект: {{ $complNum }}
+            @if($complectData['status'])
+                <span class="badge bg-success ms-2">Доступен для выдачи</span>
+            @else
+                <span class="badge bg-danger ms-2">Выдан читателю</span>
+            @endif
+        </h3>
+        <ul class="list-group mb-3">
+            @foreach ($complectData['items'] as $item)
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>{{ $item['value'] }}</span>
+                    <form action="{{ route('removeFromComplect') }}" method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот экземпляр из комплекта?')">
+                        @csrf
+                        @method('DELETE')
+                        <input type="hidden" name="complID" value="{{ $complNum }}">
+                        <input type="hidden" name="invnum" value="{{ $item['value'] }}">
+                        <input type="hidden" name="occurrence" value="{{ $item['occurrence'] }}">
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="bi bi-trash"></i> Удалить
+                        </button>
+                    </form>
+                </li>
+            @endforeach
+        </ul>
+    </div>
 @endforeach
     <h1>Добавить в комплект</h1>
     <form action="{{ route('store') }}" method="POST">

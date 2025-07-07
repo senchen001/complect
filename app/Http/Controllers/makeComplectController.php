@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\borrowedBook;
 
 require_once app_path('Http/Controllers/irbis_class.php');
 
@@ -49,8 +50,25 @@ class makeComplectController extends Controller
         }
     }
     $complects = $this->makeComplect($field1033_values);
-    //dd($complects);
+    
+    //передаем в функцию инвентарник
         return view('makeComplect.index', compact('complects'));
+    }
+
+    public function getComplectStatus($invNum){
+        
+        $borrowedBook = borrowedBook::where('inv_num', $invNum)->first();
+        if($borrowedBook){
+            if($borrowedBook->inv_num == $invNum){
+                $complectStatus = false; // комплект выдан читателю
+            }else{
+                $complectStatus = true; //комплек доступен для выдачи
+            }
+        }else{
+            $complectStatus = true; //комплек доступен для выдачи
+        }
+        
+        return $complectStatus;
     }
 
     public function makeComplect($f1033_values){
@@ -63,7 +81,9 @@ class makeComplectController extends Controller
             if (!isset($complects[$y])) {
                 $complects[$y] = [];
             }
-            
+            //добавляем статус комплекта
+            $complectStatus = $this->getComplectStatus($value['value']);
+            $complects[$y]['status'] = $complectStatus;
             // Добавляем значение в соответствующий комплект
             $complects[$y][] = $value;
             $y++;
