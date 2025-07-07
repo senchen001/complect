@@ -51,9 +51,11 @@
             @endif
         </h3>
         <ul class="list-group mb-3">
+            
             @foreach ($complectData['items'] as $item)
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                     <span>{{ $item['value'] }}</span>
+                    @if($complectData['status'])
                     <form action="{{ route('removeFromComplect') }}" method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот экземпляр из комплекта?')">
                         @csrf
                         @method('DELETE')
@@ -64,8 +66,10 @@
                             <i class="bi bi-trash"></i> Удалить
                         </button>
                     </form>
+                    @endif
                 </li>
             @endforeach
+            
         </ul>
     </div>
 @endforeach
