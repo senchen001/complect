@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\borrowedBook;
+use Exception;
+use Illuminate\Support\Facades\Log;
 
 require_once app_path('Http/Controllers/irbis_class.php');
 
@@ -83,6 +85,10 @@ class giveComplectController extends Controller
             'returnDate' => $irbisDates[1],
             'book_descr' => $book            
             ]);
+
+            // Обновляем статус книги в ИРБИС (поле 910^A = 1 - выдана читателю)
+          $this->updateBookStatus($inventNums[$x], '1', $irbis);
+            
             $x++;
         }////////////////////////////конец записи книги на читателя
         }else{
@@ -109,4 +115,29 @@ class giveComplectController extends Controller
         $dates[] = $retD;//положим в массив дату возврата
         return $dates;
     }
+
+    /**
+     * Обновление статуса книги в ИРБИС
+     * @param string $inventNum - инвентарный номер книги
+     * @param string $status - статус (1 - выдана, 0 - доступна)
+     */
+    public function updateBookStatus($inventNum, $status, $irbis)
+    {
+        //dd($inventNum);
+        $irbis->set_db('IBIS');
+        
+        $bookRecord = $irbis->records_search('IN='.$inventNum, 10, 1, $format = '@all');
+        if (!empty($bookRecord['records'][0])) {
+            
+            $mfn = $bookRecord['records'][0][0];
+            $record = $irbis->record_read($mfn);
+            
+            dd($record);
+        } else {
+            echo "Запись не найдена";
+        }
+        
+        
+    }
+
 }
