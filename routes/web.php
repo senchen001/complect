@@ -16,6 +16,7 @@ Route::post('/searchReader', [SearchReaderController::class, 'searchReader'])->n
 
 Route::get('/makeComplect', [makeComplectController::class, 'show'])->name('makeComplect');
 Route::post('/store', [makeComplectController::class, 'store'])->name('store');
+Route::delete('/removeFromComplect', [makeComplectController::class, 'remove'])->name('removeFromComplect');
 
 Route::post('/giveComplect', [giveComplectController::class, 'giveComplect'])->name('giveComplect');
 
@@ -23,7 +24,6 @@ Route::get('/inventory', [InventoryController::class, 'show'])->name('inventory'
 Route::post('/invApprove', [InventoryController::class, 'invApprove'])->name('invApprove');
 Route::post('/invFind', [InventoryController::class, 'invFind'])->name('invFind');
 Route::post('/approveAccepted', [InventoryController::class, 'approveAccepted'])->name('approveAccepted');
-//Route::get('/approveSuccess', [InventoryController::class, 'approveSuccess']);
 
 Auth::routes();
 Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');

@@ -97,11 +97,15 @@
                         }
                         ?>  
                         @if(isset($complectRecs))
-                        
+                        @if($complectStatus)
+                        <h4>Комплект доступен для выдачи</h4>
+                        @else
+                        <h4>Комплект выдан читателю</h4>
+                        @endif
                         <div class="container mt-5">
                             <form action="/giveComplect" method="post">
                             @csrf
-                                @if(Auth::check() && Auth::user()->name && session('reader') && count($complectRecs) > 1)
+                                @if(Auth::check() && Auth::user()->name && session('reader') && count($complectRecs) > 1 && $complectStatus)
                                 <input type="hidden" class="form-control" name="librarian" value="{{ Auth::user()->name }}">
                                 
                                 <input type="hidden" class="form-control" name="reader" value="{{ session('reader') }}">
@@ -126,8 +130,7 @@
                                 <br>
                                 
                                 <button type="submit" class="btn btn-primary" name="send">Выдать комплект</button>
-                                @else
-                                <h4>Данный экземпляр не входит в комплект</h4>
+                                
                                 @endif
                             </form>
                         </div>

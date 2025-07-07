@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\borrowedBook;
 
 
 // Подключаем класс irbis64
@@ -98,23 +99,43 @@ class SearchController extends Controller
 
         if(isset($res2['records'][0][1])){
             $complect = explode("*", $res2['records'][0][1]);
-            for($i=0; $i<count($complect)-1; $i++){
+            for($i=0; $i<count($complect)-1; $i++){                
                 $res = $irbis->records_search('IN='.$complect[$i], 10, 1);
                 if(isset($res['records'][0][1])){
-                    $complectRecs[] = $res['records'][0][1] . "Инвентарный номер: ".$complect[$i];//в массиве записи книг, которые входят в комплект
+                    $complectRecs[] = $res['records'][0][1] . " <br> Инвентарный номер: ".$complect[$i];//в массиве записи книг, которые входят в комплект
                 }else{
                     dd("проверьте запись с комплектами в БД RDRKV2");
                 }
             }
         }
         
+        // возвращаем статус комплекта - выдан ли он читателю
+        $complectStatus = $this->getComplectStatus($complect);
+
         // Возвращаем шаблон с результатом
         if(isset($bookStatus)){
-            return view('search', compact('result', 'complectRecs', 'bookStatus', 'invNum', 'invNumFromDB'));
+            return view('search', compact('result', 'complectRecs', 'bookStatus', 'invNum', 'invNumFromDB', 'complectStatus'));
         }else{
             
             return view('search', compact('result', 'complectRecs', 'invNum'));
         }
+    }
+
+
+    public function getComplectStatus($complect){
+        
+        $borrowedBook = borrowedBook::where('inv_num', $complect[0])->first();
+        if($borrowedBook){
+            if($borrowedBook->inv_num == $complect[0]){
+                $complectStatus = false; // комплект выдан читателю
+            }else{
+                $complectStatus = true; //комплек доступен для выдачи
+            }
+        }else{
+            $complectStatus = true; //комплек доступен для выдачи
+        }
+        
+        return $complectStatus;
     }
 
     public function isInvNum($record, $invNum, &$invNumFromDB) {

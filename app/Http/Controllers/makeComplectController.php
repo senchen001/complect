@@ -109,6 +109,80 @@ class makeComplectController extends Controller
         return view('makeComplect.store');
     }
 
+    public function Remove(Request $request){
+        $irbisServerPort = config('app.irbisServerPort');
+
+        $validated = $request->validate([
+            'complID' => 'required|string',
+            'invnum' => 'required|string',
+            'occurrence' => 'required|integer',
+        ]);
+
+        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDRKV2');
+        
+        if ($irbis->login()) {
+            // Найдем запись комплекта с идентификатором complID
+            $complRec = $irbis->records_search('I='.$validated['complID'], 10, 1, $format = '@all');
+            
+            if (!empty($complRec['records'])) {
+                $mfn = $complRec['records'][0][0];
+                $record = $irbis->record_read($mfn);
+                
+                if (is_object($record)) {
+                    // Получаем текущую запись как массив
+                    $recordArray = $record->getRecordArray();
+                    
+                    // Проверяем есть ли поле 1033
+                    if (isset($recordArray['fields'][1033])) {
+                        $field1033 = $recordArray['fields'][1033];
+                        
+                        // Ищем нужное вхождение для удаления
+                        $found = false;
+                        foreach ($field1033 as $occurrence => $fieldData) {
+                            if ($fieldData['*'] === $validated['invnum'] && $occurrence == $validated['occurrence']) {
+                                // Удаляем это вхождение
+                                unset($recordArray['fields'][1033][$occurrence]);
+                                $found = true;
+                                break;
+                            }
+                        }
+                        
+                        if ($found) {
+                            // Если поле 1033 теперь пусто, удаляем его полностью
+                            if (empty($recordArray['fields'][1033])) {
+                                unset($recordArray['fields'][1033]);
+                            }
+                            
+                            // Записываем обновленную запись
+                            $write_result = $irbis->record_write($recordArray, true, true);
+                            
+                            if ($write_result !== '') {
+                                return redirect()->route('makeComplect')->with('error', 'Ошибка записи: ' . $irbis->error($write_result));
+                            } else {
+                                $irbis->logout();
+                                return redirect()->route('makeComplect')->with('success', 'Экземпляр успешно удален из комплекта');
+                            }
+                        } else {
+                            $irbis->logout();
+                            return redirect()->route('makeComplect')->with('error', 'Экземпляр не найден в комплекте');
+                        }
+                    } else {
+                        $irbis->logout();
+                        return redirect()->route('makeComplect')->with('error', 'В комплекте нет экземпляров');
+                    }
+                } else {
+                    $irbis->logout();
+                    return redirect()->route('makeComplect')->with('error', 'Не удалось получить запись по MFN');
+                }
+            } else {
+                $irbis->logout();
+                return redirect()->route('makeComplect')->with('error', 'Комплект не найден');
+            }
+        } else {
+            return redirect()->route('makeComplect')->with('error', 'Не удалось подключиться к серверу ИРБИС');
+        }
+    }
+
     /**
      * Вывод всех записей с полем 1033
      */
