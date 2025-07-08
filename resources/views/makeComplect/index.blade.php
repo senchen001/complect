@@ -42,42 +42,51 @@
     
 @endphp
 
+<div class="accordion mb-4" id="complectsAccordion">
 @foreach ($grouped as $complNum => $complectData)
-    <div class="mb-4">
-        <h3 class="d-flex align-items-center">
-            Комплект: {{ $complNum }}
-            @if($complectData['status'])
-                <span class="badge bg-success ms-2">Доступен для выдачи</span>
-            @else
-                <span class="badge bg-danger ms-2">Выдан читателю</span>
-            @endif
-        </h3>
-        <ul class="list-group mb-3">
-            
-            @foreach ($complectData['items'] as $item)
-                <li class="list-group-item d-flex justify-content-between align-items-start">
-                    <div>
-                        <p class="mb-1">{{ $item['value'] }}</p>
-                        <p class="mb-0">{{ $item['description'] }}</p>
-                    </div>
+    <div class="accordion-item">
+        <h2 class="accordion-header" id="heading{{ $complNum }}">
+            <button class="accordion-button {{ $loop->first ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $complNum }}" aria-expanded="{{ $loop->first ? 'true' : 'false' }}" aria-controls="collapse{{ $complNum }}">
+                <div class="d-flex align-items-center w-100">
+                    <span class="me-auto">Комплект: {{ $complNum }}</span>
                     @if($complectData['status'])
-                    <form action="{{ route('removeFromComplect') }}" method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот экземпляр из комплекта?')">
-                        @csrf
-                        @method('DELETE')
-                        <input type="hidden" name="complID" value="{{ $complNum }}">
-                        <input type="hidden" name="invnum" value="{{ $item['value'] }}">
-                        <input type="hidden" name="occurrence" value="{{ $item['occurrence'] }}">
-                        <button type="submit" class="btn btn-danger btn-sm">
-                            <i class="bi bi-trash"></i> Удалить
-                        </button>
-                    </form>
+                        <span class="badge bg-success ms-2">Доступен для выдачи</span>
+                    @else
+                        <span class="badge bg-danger ms-2">Выдан читателю</span>
                     @endif
-                </li>
-            @endforeach
-            
-        </ul>
+                </div>
+            </button>
+        </h2>
+        <div id="collapse{{ $complNum }}" class="accordion-collapse collapse {{ $loop->first ? 'show' : '' }}" aria-labelledby="heading{{ $complNum }}" data-bs-parent="#complectsAccordion">
+            <div class="accordion-body">
+                <ul class="list-group">
+                    @foreach ($complectData['items'] as $item)
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div>
+                                <p class="mb-1">{{ $item['value'] }}</p>
+                                <p class="mb-0">{{ $item['description'] }}</p>
+                            </div>
+                            @if($complectData['status'])
+                            <form action="{{ route('removeFromComplect') }}" method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот экземпляр из комплекта?')">
+                                @csrf
+                                @method('DELETE')
+                                <input type="hidden" name="complID" value="{{ $complNum }}">
+                                <input type="hidden" name="invnum" value="{{ $item['value'] }}">
+                                <input type="hidden" name="occurrence" value="{{ $item['occurrence'] }}">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i> Удалить
+                                </button>
+                            </form>
+                            @endif
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        </div>
     </div>
 @endforeach
+</div>
+
     <h1>Добавить в комплект</h1>
     <form action="{{ route('store') }}" method="POST">
         @csrf
