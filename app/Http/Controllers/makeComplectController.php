@@ -49,7 +49,7 @@ class makeComplectController extends Controller
             }
         }
     }
-    $complects = $this->makeComplect($field1033_values);
+    $complects = $this->makeComplect($field1033_values, $irbis);
     
     //передаем в функцию инвентарник
         return view('makeComplect.index', compact('complects'));
@@ -71,7 +71,7 @@ class makeComplectController extends Controller
         return $complectStatus;
     }
 
-    public function makeComplect($f1033_values){
+    public function makeComplect($f1033_values, $irbis){
         $complects = [];
         $y = 1;
         foreach($f1033_values as $value){
@@ -84,8 +84,14 @@ class makeComplectController extends Controller
             //добавляем статус комплекта
             $complectStatus = $this->getComplectStatus($value['value']);
             $complects[$y]['status'] = $complectStatus;
+            //добавляем описание книги  
+            $irbis->set_db('IBIS');
+            $res = $irbis->records_search('IN='.$value['value'], 10, 1);
+            
+            $value['description'] = $res['records'][0][1];
             // Добавляем значение в соответствующий комплект
             $complects[$y][] = $value;
+            
             $y++;
         }
         //dd($complects);

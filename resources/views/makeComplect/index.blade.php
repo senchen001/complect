@@ -23,6 +23,7 @@
         $value = $item[0]['value'];
         $complNum = $item[0]['complNum'];
         $occurrence = $item[0]['occurrence'];
+        $description = $item[0]['description'];
         $status = $item['status'] ?? true; // получаем статус комплекта, по умолчанию доступен
         
         if (!isset($grouped[$complNum])) {
@@ -34,7 +35,8 @@
         
         $grouped[$complNum]['items'][] = [
             'value' => $value,
-            'occurrence' => $occurrence
+            'occurrence' => $occurrence,
+            'description' => $description
         ];
     }
     
@@ -53,8 +55,11 @@
         <ul class="list-group mb-3">
             
             @foreach ($complectData['items'] as $item)
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <span>{{ $item['value'] }}</span>
+                <li class="list-group-item d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="mb-1">{{ $item['value'] }}</p>
+                        <p class="mb-0">{{ $item['description'] }}</p>
+                    </div>
                     @if($complectData['status'])
                     <form action="{{ route('removeFromComplect') }}" method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот экземпляр из комплекта?')">
                         @csrf
