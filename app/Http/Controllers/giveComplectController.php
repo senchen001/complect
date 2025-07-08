@@ -127,12 +127,24 @@ class giveComplectController extends Controller
         $irbis->set_db('IBIS');
         
         $bookRecord = $irbis->records_search('IN='.$inventNum, 10, 1, $format = '@all');
+        //$bookRecord = $irbis->records_search('IN=84814608', 10, 1, $format = '@all');
         if (!empty($bookRecord['records'][0])) {
             
             $mfn = $bookRecord['records'][0][0];
             $record = $irbis->record_read($mfn);
+            $rec = $record->getRecordArray();
+            $c = 1;
+            foreach($rec['fields']["910"] as $field){
+                //echo $c . " " . $field["B"] . " " . $field["A"] . "<br>";
+                if($field["B"] == $inventNum){
+                    $record->setField($status, 910, $c, 'A');
+                }
+                $c++;
+            }
             
-            dd($record);
+            $irbis->record_write($record->getRecordArray(), false, true);
+            //dd($rec['fields']["910"]);
+            
         } else {
             echo "Запись не найдена";
         }

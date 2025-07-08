@@ -97,6 +97,7 @@ class SearchController extends Controller
         
         $irbis->set_db('IBIS');
 
+        $complect = Array();
         if(isset($res2['records'][0][1])){
             $complect = explode("*", $res2['records'][0][1]);
             for($i=0; $i<count($complect)-1; $i++){                
@@ -110,7 +111,11 @@ class SearchController extends Controller
         }
         
         // возвращаем статус комплекта - выдан ли он читателю
-        $complectStatus = $this->getComplectStatus($complect);
+        if(count($complect) > 1){
+            $complectStatus = $this->getComplectStatus($complect);
+        }else{
+            $complectStatus = 1; //экземпляр не состоит в комплекте
+        }
 
         // Возвращаем шаблон с результатом
         if(isset($bookStatus)){

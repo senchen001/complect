@@ -97,9 +97,10 @@
                         }
                         ?>  
                         @if(isset($complectRecs))
-                        @if($complectStatus)
+                        @if($complectStatus && $complectStatus != 1)<!-- если $complectStatus==1 значит книга не состоит в комплекте-->
                         <h4>Комплект доступен для выдачи</h4>
-                        @else
+                        @endif
+                        @if($complectStatus == false && $complectStatus != 1)
                         <h4>Комплект выдан читателю</h4>
                         @endif
                         <div class="container mt-5">
