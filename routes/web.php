@@ -16,6 +16,7 @@ Route::post('/searchReader', [SearchReaderController::class, 'searchReader'])->n
 
 Route::get('/makeComplect', [makeComplectController::class, 'show'])->name('makeComplect');
 Route::post('/store', [makeComplectController::class, 'store'])->name('store');
+Route::post('/createNewComplect', [makeComplectController::class, 'createNewComplect'])->name('createNewComplect');
 Route::delete('/removeFromComplect', [makeComplectController::class, 'remove'])->name('removeFromComplect');
 
 Route::post('/giveComplect', [giveComplectController::class, 'giveComplect'])->name('giveComplect');

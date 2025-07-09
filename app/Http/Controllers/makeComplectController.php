@@ -1,17 +1,18 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Support\Facades\Session;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\borrowedBook;
+use Exception;
 
 require_once app_path('Http/Controllers/irbis_class.php');
 
 class makeComplectController extends Controller
 {
     public function Show(){
-        $irbisServerPort = config('app.irbisServerPort');
+    $irbisServerPort = config('app.irbisServerPort');
     $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDRKV2');
     
     $records_with_field1033 = [];
@@ -105,18 +106,23 @@ class makeComplectController extends Controller
             'complID' => 'required|string',
             'invnum' => 'required|string',
         ]);
-
+        
         $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDRKV2');
         if ($irbis->login()) {
             //найдем запись комплекта с идентификатором complID
            $complRec = $irbis->records_search('I='.$validated['complID'], 10, 1, $format = '@all');
-           //$complRec = $irbis->record_read(2);
            
            $mfn = $complRec['records'][0][0];
            $field_num = 1033;
            $invNumToRec = $validated['invnum'];
            $record = $irbis->record_read($mfn);
-            //dd($record);
+           $thisComplect = [];//инвентарные номера комплекта, который создаем
+           $fieldCount = $record->getFieldCount(1033);
+            for ($i = 1; $i <= $fieldCount; $i++) {
+                $fieldValue = $record->getField(1033, $i, '*');
+                $thisComplect[] = $fieldValue;
+            }
+            //dd($thisComplect);
            if(is_object($record)){
                 $record->addField($invNumToRec, $field_num);
                 $write_result = $irbis->record_write($record->getRecordArray(), true, true);
@@ -132,7 +138,8 @@ class makeComplectController extends Controller
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
 
-        return view('makeComplect.store');
+        //return view('makeComplect.store');
+        return view('makeComplect.index', compact('thisComplect'));
     }
 
     public function Remove(Request $request){
@@ -209,6 +216,58 @@ class makeComplectController extends Controller
         }
     }
 
+    public function createNewComplect(Request $request){
+        $irbisServerPort = config('app.irbisServerPort');
+        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDRKV2');
+        
+        if ($irbis->login()) {
+            try {
+                // Создаем новую пустую запись
+                $record = new \irbisRecord();
+                
+                // Получаем максимальный MFN для генерации нового номера комплекта
+                $maxMfn = $irbis->mfn_max();
+                $newComplectNumber = $maxMfn + 1;
+                
+                // Добавляем основные поля для записи комплекта
+                // Поле 903 - номер комплекта
+                $record->addField($newComplectNumber, 903);
+                
+                  
+                // Получаем массив записи для сохранения
+                $recordArray = $record->getRecordArray();
+                
+                // Записываем новую запись в базу
+                $write_result = $irbis->record_write($recordArray, false, true);
+                
+                if ($write_result !== '') {
+                    $irbis->logout();
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Ошибка при создании комплекта: ' . $irbis->error($write_result)
+                    ]);
+                } else {
+                    $irbis->logout();
+                    $makingComplect = true;
+                    Session::put('makingComplect', true);
+                    Session::put('newComplectNumber', $newComplectNumber);
+                    return view('makeComplect.index', compact('newComplectNumber', 'makingComplect'));
+                }
+                
+            } catch (Exception $e) {
+                $irbis->logout();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Ошибка при создании комплекта: ' . $e->getMessage()
+                ]);
+            }
+        } else {
+            return response()->json([
+                'success' => false,
+                'message' => 'Не удалось подключиться к серверу ИРБИС'
+            ]);
+        }
+    }
     /**
      * Вывод всех записей с полем 1033
      */

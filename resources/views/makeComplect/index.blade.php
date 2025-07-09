@@ -15,31 +15,36 @@
     @endif
 
     @php
-    
+    $makingComplect = Session::get('makingComplect');
+    $newComplectNumber = Session::get('newComplectNumber');
     $grouped = [];
     
     // Группируем значения по complNum
-    foreach ($complects as $item) {
-        $value = $item[0]['value'];
-        $complNum = $item[0]['complNum'];
-        $occurrence = $item[0]['occurrence'];
-        $description = $item[0]['description'];
-        $status = $item['status'] ?? true; // получаем статус комплекта, по умолчанию доступен
+    if(isset($complects)){
+        foreach ($complects as $item) {
+            $value = $item[0]['value'];
+            $complNum = $item[0]['complNum'];
+            $occurrence = $item[0]['occurrence'];
+            $description = $item[0]['description'];
+            $status = $item['status'] ?? true; // получаем статус комплекта, по умолчанию доступен
         
-        if (!isset($grouped[$complNum])) {
-            $grouped[$complNum] = [
-                'status' => $status,
-                'items' => []
+            if (!isset($grouped[$complNum])) {
+                $grouped[$complNum] = [
+                    'status' => $status,
+                    'items' => []
+                ];
+            }
+        
+            $grouped[$complNum]['items'][] = [
+                'value' => $value,
+                'occurrence' => $occurrence,
+                'description' => $description
             ];
         }
-        
-        $grouped[$complNum]['items'][] = [
-            'value' => $value,
-            'occurrence' => $occurrence,
-            'description' => $description
-        ];
     }
-    
+    else{
+        $grouped = [];
+    }
 @endphp
 
 <div class="accordion mb-4" id="complectsAccordion">
@@ -86,13 +91,24 @@
     </div>
 @endforeach
 </div>
-
+    <h1>Создать комплект</h1>
+    <form action="{{ route('createNewComplect') }}" method="POST">
+        @csrf
+        <button type="submit" class="btn btn-success">Создать комплект</button>
+    </form>
+    @if(isset($makingComplect) && Session::get('makingComplect') == true)
+        @if(isset($thisComplect))
+            @foreach($thisComplect as $item)
+                <p>{{ $item }}</p>
+            @endforeach
+        @endif
+    
     <h1>Добавить в комплект</h1>
     <form action="{{ route('store') }}" method="POST">
         @csrf
         <div class="form-group">
             <label for="name">Номер комплекта</label>
-            <input type="text" class="form-control" name="complID" required>
+            <input type="text" class="form-control" name="complID" value="{{ $newComplectNumber }}" required>
         </div>
         <div class="form-group">
             <label for="description">Инвентаный номер экземпляра</label>
@@ -101,5 +117,11 @@
         
         <button type="submit" class="btn btn-success">Добавить</button>
     </form>
+    @endif
 </div>
+</div>
+
+
+
+
 @endsection
