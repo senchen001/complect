@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SearchReaderController;
 use App\Http\Controllers\makeComplectController;
@@ -17,6 +18,7 @@ Route::post('/searchReader', [SearchReaderController::class, 'searchReader'])->n
 Route::get('/makeComplect', [makeComplectController::class, 'show'])->name('makeComplect');
 Route::post('/store', [makeComplectController::class, 'store'])->name('store');
 Route::post('/createNewComplect', [makeComplectController::class, 'createNewComplect'])->name('createNewComplect');
+Route::post('/closeComplect', [makeComplectController::class, 'closeComplect'])->name('closeComplect');
 Route::delete('/removeFromComplect', [makeComplectController::class, 'remove'])->name('removeFromComplect');
 
 Route::post('/giveComplect', [giveComplectController::class, 'giveComplect'])->name('giveComplect');

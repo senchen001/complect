@@ -1,107 +1,94 @@
 @extends('layouts.app')
 
 @section('content')
+<style>
+.complect-item {
+    transition: all 0.3s ease;
+}
+.complect-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(5px);
+}
+.complect-number {
+    color: #007bff;
+    font-weight: bold;
+}
+.item-counter {
+    background-color: #e9ecef;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+</style>
+
 <div class="container">
     @if(session('success'))
-        <div class="alert alert-success">
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
     @if(session('error'))
-        <div class="alert alert-danger">
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
             {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
 
-    @php
-    $makingComplect = Session::get('makingComplect');
-    $newComplectNumber = Session::get('newComplectNumber');
-    $grouped = [];
-    
-    // Группируем значения по complNum
-    if(isset($complects)){
-        foreach ($complects as $item) {
-            $value = $item[0]['value'];
-            $complNum = $item[0]['complNum'];
-            $occurrence = $item[0]['occurrence'];
-            $description = $item[0]['description'];
-            $status = $item['status'] ?? true; // получаем статус комплекта, по умолчанию доступен
-        
-            if (!isset($grouped[$complNum])) {
-                $grouped[$complNum] = [
-                    'status' => $status,
-                    'items' => []
-                ];
-            }
-        
-            $grouped[$complNum]['items'][] = [
-                'value' => $value,
-                'occurrence' => $occurrence,
-                'description' => $description
-            ];
-        }
-    }
-    else{
-        $grouped = [];
-    }
-@endphp
 
-<div class="accordion mb-4" id="complectsAccordion">
-@foreach ($grouped as $complNum => $complectData)
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="heading{{ $complNum }}">
-            <button class="accordion-button {{ $loop->first ? '' : 'collapsed' }}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ $complNum }}" aria-expanded="{{ $loop->first ? 'true' : 'false' }}" aria-controls="collapse{{ $complNum }}">
-                <div class="d-flex align-items-center w-100">
-                    <span class="me-auto">Комплект: {{ $complNum }}</span>
-                    @if($complectData['status'])
-                        <span class="badge bg-success ms-2">Доступен для выдачи</span>
-                    @else
-                        <span class="badge bg-danger ms-2">Выдан читателю</span>
-                    @endif
-                </div>
-            </button>
-        </h2>
-        <div id="collapse{{ $complNum }}" class="accordion-collapse collapse {{ $loop->first ? 'show' : '' }}" aria-labelledby="heading{{ $complNum }}" data-bs-parent="#complectsAccordion">
-            <div class="accordion-body">
-                <ul class="list-group">
-                    @foreach ($complectData['items'] as $item)
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
+    @if(!Session::get('makingComplect'))
+        <h1>Создать комплект</h1>
+        <form action="{{ route('createNewComplect') }}" method="POST">
+            @csrf
+            <button type="submit" class="btn btn-success">Создать комплект</button>
+        </form>
+    @endif
+
+    @if(isset($thisComplect) && !empty($thisComplect))
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list"></i> 
+                    Состав комплекта № <span class="complect-number">{{ $newComplectNumber ?? 'Неизвестен' }}</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="list-group list-group-flush">
+                    @foreach($thisComplect as $index => $item)
+                        <div class="list-group-item complect-item d-flex justify-content-between align-items-center">
                             <div>
-                                <p class="mb-1">{{ $item['value'] }}</p>
-                                <p class="mb-0">{{ $item['description'] }}</p>
+                                <span class="badge bg-secondary me-2">{{ $index + 1 }}</span>
+                                <span>Инвентарный номер: <strong class="text-primary">{{ $item }}</strong></span>
                             </div>
-                            @if($complectData['status'])
-                            <form action="{{ route('removeFromComplect') }}" method="POST" style="display: inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот экземпляр из комплекта?')">
-                                @csrf
-                                @method('DELETE')
-                                <input type="hidden" name="complID" value="{{ $complNum }}">
-                                <input type="hidden" name="invnum" value="{{ $item['value'] }}">
-                                <input type="hidden" name="occurrence" value="{{ $item['occurrence'] }}">
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="bi bi-trash"></i> Удалить
-                                </button>
-                            </form>
+                            @if(Session::get('makingComplect'))
+                                <form action="{{ route('removeFromComplect') }}" method="POST" style="display: inline;">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="invnum" value="{{ $item }}">
+                                    <input type="hidden" name="complID" value="{{ $newComplectNumber }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" 
+                                            onclick="return confirm('Удалить {{ $item }} из комплекта?')"
+                                            title="Удалить из комплекта">
+                                        <i class="fas fa-trash"></i> Удалить
+                                    </button>
+                                </form>
                             @endif
-                        </li>
+                        </div>
                     @endforeach
-                </ul>
+                </div>
+                <div class="mt-3 item-counter">
+                    <small class="text-muted">
+                        <i class="fas fa-info-circle"></i> 
+                        Всего элементов в комплекте: <strong>{{ count($thisComplect) }}</strong>
+                    </small>
+                </div>
             </div>
         </div>
-    </div>
-@endforeach
-</div>
-    <h1>Создать комплект</h1>
-    <form action="{{ route('createNewComplect') }}" method="POST">
-        @csrf
-        <button type="submit" class="btn btn-success">Создать комплект</button>
-    </form>
+    @endif
+
     @if(isset($makingComplect) && Session::get('makingComplect') == true)
-        @if(isset($thisComplect))
-            @foreach($thisComplect as $item)
-                <p>{{ $item }}</p>
-            @endforeach
-        @endif
+        
     
     <h1>Добавить в комплект</h1>
     <form action="{{ route('store') }}" method="POST">
@@ -117,8 +104,12 @@
         
         <button type="submit" class="btn btn-success">Добавить</button>
     </form>
+    
+    <form action="{{ route('closeComplect') }}" method="POST" style="margin-top: 20px;">
+        @csrf
+        <button type="submit" class="btn btn-danger">Закрыть комплект</button>
+    </form>
     @endif
-</div>
 </div>
 
 
