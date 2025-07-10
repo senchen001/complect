@@ -42,22 +42,22 @@ class InventoryController extends Controller
     }
 
     public function invFind(Request $request){
+        
         $librarian = auth()->user()->name;
         global $invNumFromDB;
          $irbisServerPort = config('app.irbisServerPort');
-        /*$validated = $request->validate([
-            'db' => 'required|string',
-            'storLoc' => 'required|string',
-            'rastShifr' => 'required|string',
-            'invNum' => 'required|string',
-            'booksNum' => 'required|string',
-        ]);*/
+       
 
          $validated = $request->validate([
             'db' => 'required|string',
             'invNum' => 'required|string',
             'booksNum' => 'required|string',
+            'storLoc' => 'required|string',
+            'rastShifr' => 'required|string',
         ]);
+
+        $usersRastShifr = $validated['rastShifr'];
+        $usersStorLoc = $validated['storLoc'];
         
         $db = $validated['db'];
         $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $db);
@@ -128,11 +128,17 @@ class InventoryController extends Controller
                 //dd($bookFound);
                 //////////место хранения
                 if(isset($bookFound)){
-                    $storLocFound = $this->getStorLoc($bookFound);
-                    $rastShifrFound = $this->getRastShifr($bookFound);
+                    $storLocFound = $this->getStorLoc($book, $validated['invNum'], $usersStorLoc, $irbis);
+                    $rastShifrFound = $this->getRastShifr($book, $validated['invNum'], $usersRastShifr, $irbis);
                 }else{
-                    $storLocFound = "не определен, экземпляр утерян или списан";
-                    $rastShifrFound = "не определен, экземпляр утерян или списан";
+                    $storLocFound = [
+                        'status' => false,
+                        'storLoc' => "не определен, экземпляр утерян или списан"
+                    ];
+                    $rastShifrFound = [
+                        'status' => false,
+                        'rastShifr' => "не определен, экземпляр утерян или списан"
+                    ];
                 }
                 $invNum = $validated['invNum'];
                 $invStatus = $this->getInventoryStatus($invNum);
@@ -152,43 +158,56 @@ class InventoryController extends Controller
         return $status;
     }
 
-    public function getRastShifr($bookfound){
-        $RPos = strpos($bookfound, "^R");//найдем позицию ^R, там хранится расстановочный шифр
+    public function getRastShifr($book, $invNum, $usersRastShifr, $irbis){
+        $rastShifrAndStatus = Array();        
+        $mfn = $book['records'][0][0];
+        $record = $irbis->record_read($mfn);
         
-        if($RPos!==false){
-            $bookfound = mb_str_split($bookfound);
-            $rastShifrFound = Array();
-            for($x = $RPos; $x < count($bookfound); $x++){
-                if($bookfound[$x] == "^" || $bookfound[$x] == "\\"){
-                    break;
+        foreach($record->record['fields'][910] as $field){
+            if($field["B"] == $invNum){
+                if(isset($field["R"])){
+                    $rastShifrFound = $field["R"];
+                }else{
+                    $rastShifrFound = "расстановочный шифр не найден";
                 }
-                $rastShifrFound[] = $bookfound[$x];
-            }    
-        }else{
-            $rastShifrFound = "расстановочный шифр не найден";
+                break;
+            }
+        } 
+        //если расстановочный шифр совпадает с тем, что ввел пользователь, то статус true, иначе false
+        if($rastShifrFound == $usersRastShifr){
+            $rastShifrAndStatus['status'] = true;
+        }else{  
+            $rastShifrAndStatus['status'] = false;
         }
-        if(is_array($rastShifrFound)){
-            $rastShifrFound = implode("", $rastShifrFound);
-        }
-        return $rastShifrFound;
+        $rastShifrAndStatus['rastShifr'] = $rastShifrFound;
+        //dd($rastShifrAndStatus);
+        return $rastShifrAndStatus;
     }
     
-    public function getStorLoc($bookFoundRec){
-        $DPos = strpos($bookFoundRec, "^D");//найдем позицию ^D, там храниться storLoc
-        $bookFoundRec = mb_str_split($bookFoundRec);//сделаем из строки массив
-        if($DPos!==false){
-            $foundStorLoc = Array();
-                for($x = $DPos+2; $x < count($bookFoundRec)-1; $x++){
-                    if($bookFoundRec[$x]=="\\" || $bookFoundRec[$x]=="^"){
-                        break;
-                    }
-                $foundStorLoc[] = $bookFoundRec[$x];
+    public function getStorLoc($book, $invNum, $usersStorLoc, $irbis){
+        $storLocAndStatus = Array();        
+        $mfn = $book['records'][0][0];
+        $record = $irbis->record_read($mfn);
+        
+        foreach($record->record['fields'][910] as $field){
+            if($field["B"] == $invNum){
+                if(isset($field["D"])){
+                    $storLocFound = $field["D"];
+                }else{
+                    $storLocFound = "место хранения не найдено";
                 }
-            $foundStorLoc = implode("", $foundStorLoc);
-        }else{
-            $foundStorLoc = "место хранения не найдено";
+                break;
+            }
+        } 
+        //если расстановочный шифр совпадает с тем, что ввел пользователь, то статус true, иначе false
+        if($storLocFound == $usersStorLoc){
+            $storLocAndStatus['status'] = true;
+        }else{  
+            $storLocAndStatus['status'] = false;
         }
-        return $foundStorLoc;
+        $storLocAndStatus['storLoc'] = $storLocFound;
+        //dd($storLocAndStatus);
+        return $storLocAndStatus;
     }
 
     public function isInvNum($record, $invNum, &$invNumFromDB) {

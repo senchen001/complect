@@ -45,9 +45,13 @@
                 <label for="storLoc">Место хранения:</label>
             </div>
             <div class="col-md-3">
-                {{ $storLocFound }}
+                @if($storLocFound['status'])
+                    {{ $storLocFound['storLoc'] }}
+                @else
+                    <p class="text-danger">место хранения в ИРБИС {{ $storLocFound['storLoc'] }}</p>
+                @endif
             </div>
-            <input type="hidden" class="form-control" name="storLoc" value="{{ $storLocFound }}">
+            <input type="hidden" class="form-control" name="storLoc" value="{{ $storLocFound['storLoc'] }}">
         </div>
         <hr>
         <br>
@@ -55,10 +59,16 @@
             <div class="col-md-3">
                 <label for="rastShifr">Расстановочный шифр:</label>
             </div>
+            @if($rastShifrFound['status'])
             <div class="col-md-3">
-                {{ $rastShifrFound }}
+                {{ $rastShifrFound['rastShifr'] }}
             </div>
-            <input type="hidden" class="form-control" name="rastShifr" value="{{ $rastShifrFound }}">
+            @else
+            <div class="col-md-3">
+                <p class="text-danger">Расстановочный шифр в ИРБИС {{ $rastShifrFound['rastShifr'] }}</p>
+            </div>
+            @endif
+            <input type="hidden" class="form-control" name="rastShifr" value="{{ $rastShifrFound['rastShifr'] }}">
         </div>
         <hr>
         <br>

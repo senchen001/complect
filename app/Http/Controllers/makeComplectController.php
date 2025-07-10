@@ -125,8 +125,7 @@ class makeComplectController extends Controller
                 // Добавляем основные поля для записи комплекта
                 // Поле 903 - номер комплекта
                 $record->addField($newComplectNumber, 903);
-                
-                  
+                                  
                 // Получаем массив записи для сохранения
                 $recordArray = $record->getRecordArray();
                 

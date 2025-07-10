@@ -14,13 +14,11 @@ class RastshifrsSeeder extends Seeder
     public function run(): void
     {
         $rastshifrs = [
-            ['rastshifr' => 'A1'],
-            ['rastshifr' => 'A2'],
-            ['rastshifr' => 'A3'],
-            ['rastshifr' => 'A4'],
-            ['rastshifr' => 'A5'],
-            ['rastshifr' => 'A6'],
-            ['rastshifr' => 'A7'],
+            ['rastshifr' => 'А1'],
+            ['rastshifr' => 'А2'],
+            ['rastshifr' => 'Б3'],
+            ['rastshifr' => 'Б4'],
+            ['rastshifr' => 'Ф5'],
         ];
         foreach($rastshifrs as $rastshifr){
             Rastshifr::create($rastshifr);

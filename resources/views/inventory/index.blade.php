@@ -39,7 +39,7 @@
             <div class="col-md-3">
                 <select id="storLoc" name="storLoc"> 
                     @foreach($storlocs as $storloc)
-                        <option value="{{ $storloc->storloc }}">{{ $storloc->storlocdescr }}</option>
+                        <option value="{{ $storloc->storloc }}">{{ $storloc->storloc }}</option>
                     @endforeach
                 </select>
             </div>
