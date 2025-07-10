@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\InventoryApproval;
+use App\Models\Rastshifr;
 
 // Подключаем класс irbis64
 require_once app_path('Http/Controllers/irbis_class.php');
@@ -12,7 +13,8 @@ require_once app_path('Http/Controllers/irbis_class.php');
 class InventoryController extends Controller
 {
     public function show(){
-        return view('inventory.index');
+        $rastshifrs = Rastshifr::all();
+        return view('inventory.index', compact('rastshifrs'));
     }
 
     public function approveSuccess(){
@@ -222,5 +224,33 @@ class InventoryController extends Controller
         
         }
         return false; // If 910/ is not found, return false
+    }
+
+    public function storeRastshifr(Request $request)
+    {
+        $validated = $request->validate([
+            'rastshifr' => 'required|string|max:255|unique:rastshifrs,rastshifr'
+        ], [
+            'rastshifr.required' => 'Расстановочный шифр обязателен для заполнения',
+            'rastshifr.unique' => 'Такой расстановочный шифр уже существует',
+            'rastshifr.max' => 'Расстановочный шифр не должен превышать 255 символов'
+        ]);
+
+        try {
+            $rastshifr = Rastshifr::create([
+                'rastshifr' => $validated['rastshifr']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'rastshifr' => $rastshifr,
+                'message' => 'Расстановочный шифр успешно добавлен'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при сохранении: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }
