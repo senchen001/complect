@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\InventoryApproval;
 use App\Models\Rastshifr;
+use App\Models\StorLoc;
 
 // Подключаем класс irbis64
 require_once app_path('Http/Controllers/irbis_class.php');
@@ -14,7 +15,8 @@ class InventoryController extends Controller
 {
     public function show(){
         $rastshifrs = Rastshifr::all();
-        return view('inventory.index', compact('rastshifrs'));
+        $storlocs = StorLoc::all();
+        return view('inventory.index', compact('rastshifrs', 'storlocs'));
     }
 
     public function approveSuccess(){
@@ -245,6 +247,38 @@ class InventoryController extends Controller
                 'success' => true,
                 'rastshifr' => $rastshifr,
                 'message' => 'Расстановочный шифр успешно добавлен'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ошибка при сохранении: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function storeStorloc(Request $request)
+    {
+        $validated = $request->validate([
+            'storloc' => 'required|string|max:255|unique:storlocs,storloc',
+            'storlocdescr' => 'required|string|max:255'
+        ], [
+            'storloc.required' => 'Краткое обозначение обязательно для заполнения',
+            'storloc.unique' => 'Такое краткое обозначение уже существует',
+            'storloc.max' => 'Краткое обозначение не должно превышать 255 символов',
+            'storlocdescr.required' => 'Полное описание обязательно для заполнения',
+            'storlocdescr.max' => 'Полное описание не должно превышать 255 символов'
+        ]);
+
+        try {
+            $storloc = StorLoc::create([
+                'storloc' => $validated['storloc'],
+                'storlocdescr' => $validated['storlocdescr']
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'storloc' => $storloc,
+                'message' => 'Место хранения успешно добавлено'
             ]);
         } catch (\Exception $e) {
             return response()->json([
