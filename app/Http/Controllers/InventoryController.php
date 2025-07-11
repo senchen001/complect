@@ -91,7 +91,7 @@ class InventoryController extends Controller
                
             $bookDescr = $bookShortRec['records'][0][1];
             //dd($bookDescr);    
-
+        
             //dd($book['records'][0]);
             if(isset($book['records'])){                    
                     foreach($book['records'][0] as $record){
@@ -128,8 +128,9 @@ class InventoryController extends Controller
                 //dd($bookFound);
                 //////////место хранения
                 if(isset($bookFound)){
-                    $storLocFound = $this->getStorLoc($book, $validated['invNum'], $usersStorLoc, $irbis);
-                    $rastShifrFound = $this->getRastShifr($book, $validated['invNum'], $usersRastShifr, $irbis);
+                    //$storLocFound = $this->getStorLoc($book, $validated['invNum'], $usersStorLoc, $irbis);
+                    //$rastShifrFound = $this->getRastShifr($book, $validated['invNum'], $usersRastShifr, $irbis);
+                    //$bookStatus = $this->getBookStatus($book, $validated['invNum'], $irbis);
                 }else{
                     $storLocFound = [
                         'status' => false,
@@ -140,9 +141,12 @@ class InventoryController extends Controller
                         'rastShifr' => "не определен, экземпляр утерян или списан"
                     ];
                 }
+                $storLocFound = $this->getStorLoc($book, $validated['invNum'], $usersStorLoc, $irbis);
+                $rastShifrFound = $this->getRastShifr($book, $validated['invNum'], $usersRastShifr, $irbis);
+                $bookStatus = $this->getBookStatus($book, $validated['invNum'], $irbis);
                 $invNum = $validated['invNum'];
                 $invStatus = $this->getInventoryStatus($invNum);
-                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db'));
+                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus'));
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
@@ -208,6 +212,40 @@ class InventoryController extends Controller
         $storLocAndStatus['storLoc'] = $storLocFound;
         //dd($storLocAndStatus);
         return $storLocAndStatus;
+    }
+
+    public function getBookStatus($book, $invNum, $irbis){
+        
+        $status = Array(
+            "0" => "Для ЭК - отдельный экземпляр, поступил по месту хранения",
+            "R" => "Для ЭК - группа экз-ров, Размножение с вводом инвентарных номеров",
+            "U" => "Для ЭК ВУЗа - группа экз-ров (Безинв. учет). Размножение не требуется",
+            "C" => "Группа экземпляров для библиотеки сети. Размножение не требуется",
+            "E" => "Сетевой локальный ресурс",
+            "8" => "Номер журнала/газеты поступил, но еще не дошел до места хранения",
+            "2" => "Отдельный экземпляр в библиотеку еще не поступал, ожидается",
+            "3" => "В переплете",
+            "4" => "Утерян",
+            "5" => "Временно не выдается",
+            "6" => "Списан",
+            "p" => "Номер журнала/газеты переплетен (входит в подшивку)",
+            "1" => "Выдан читателю",
+            "9" => "На бронеполке"
+        );
+
+        $mfn = $book['records'][0][0];        
+        $record = $irbis->record_read($mfn);
+        
+        foreach($record->record['fields'][910] as $field){
+            
+            if($field["B"] == $invNum){
+                $bookStatus = $field["A"];
+                break;
+            }
+           
+        }
+        $bookStatus = $status[$bookStatus];
+        return $bookStatus;
     }
 
     public function isInvNum($record, $invNum, &$invNumFromDB) {

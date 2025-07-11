@@ -85,6 +85,15 @@
         <br>
         <div class="row">
             <div class="col-md-3">
+                <label for="rastShifr">Статус экземпляра:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $bookStatus }}
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            <div class="col-md-3">
                 <label for="rastShifr">Экземпляр:</label>
             </div>
             <div class="col-md-3">
@@ -98,6 +107,7 @@
             <label for="booksNum">Количество экземпляров</label>
             <input type="text" class="form-control" name="booksNum" value="1">
         </div>
+        <br>
         @endif
         
         
