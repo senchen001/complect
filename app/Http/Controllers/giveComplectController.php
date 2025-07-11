@@ -76,7 +76,7 @@ class giveComplectController extends Controller
            }
 
            //занесем данные о выданной книге в базу mysql
-           borrowedBook::create([
+         /*  borrowedBook::create([
             'labrarian' => $librarian,
             'reader' => $reader,
             'db' => "IBIS",
@@ -84,17 +84,44 @@ class giveComplectController extends Controller
             'giveDate' => $irbisDates[0],
             'returnDate' => $irbisDates[1],
             'book_descr' => $book            
-            ]);
+            ]);*/
 
             // Обновляем статус книги в ИРБИС (поле 910^A = 1 - выдана читателю)
           $this->updateBookStatus($inventNums[$x], '1', $irbis);
             
             $x++;
+        
         }////////////////////////////конец записи книги на читателя
+        //запишем данные в БД REQREC    
+        $this->recordBooksToIrbis($books, $inventNums, $irbisDates, $irbis, $librarian, $reader);    
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
         return view('givenComplectRecorded');
+    }
+
+    public function recordBooksToIrbis($books, $inventNums, $irbisDates, $irbis, $librarian, $reader){
+        $irbis->set_db('REQREC2');
+        $maxMfn = $irbis->mfn_max();
+        $x = 0;
+        foreach($books as $book){
+            $record = new \irbisRecord();
+            $record->addField($reader, 30);
+            $record->addField($inventNums[$x], 903);
+            $record->addField($book, 201);
+            $record->addField($irbisDates[0], 41);
+            $record->addField($irbisDates[1], 42);
+            $record->addField($librarian, 50);
+            $record->addField($maxMfn, 903);
+
+            $recordArray = $record->getRecordArray();
+            $write_result = $irbis->record_write($recordArray, false, true);
+            if ($write_result !== '') {
+                dd('Ошибка записи: ' . $irbis->error($write_result));
+            }
+            $x++;
+        }
+        $irbis->logout();
     }
 
     public function dateToIrbisDate($giveDate, $returnDate){
@@ -127,7 +154,7 @@ class giveComplectController extends Controller
         $irbis->set_db('IBIS');
         
         $bookRecord = $irbis->records_search('IN='.$inventNum, 10, 1, $format = '@all');
-        //$bookRecord = $irbis->records_search('IN=84814608', 10, 1, $format = '@all');
+        
         if (!empty($bookRecord['records'][0])) {
             
             $mfn = $bookRecord['records'][0][0];
