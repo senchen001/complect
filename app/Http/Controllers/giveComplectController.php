@@ -102,14 +102,28 @@ class giveComplectController extends Controller
 
     public function recordBooksToIrbis($books, $inventNums, $irbisDates, $irbis, $librarian, $reader){
         $irbis->set_db('REQREC2');
+        date_default_timezone_set('Europe/Moscow');
         $maxMfn = $irbis->mfn_max();
         $x = 0;
         foreach($books as $book){
+            //выделим из $reader $readerID и $readerDescr - описание читателя
+            $readerDescr = "";
+            $reader_arr = explode(" ", $reader);
+            $readerID = $reader_arr[0];
+            for($i=1; $i<count($reader_arr); $i++){
+                $readerDescr .= $reader_arr[$i] . " ";
+            }
+
+            //добавим к дате выдачи время выдачи
+            $time = date('H:i:s');
+
+            $readerDescr = trim($readerDescr);
             $record = new \irbisRecord();
-            $record->addField($reader, 30);
+            $record->addField($readerID, 30);
+            $record->addField($readerDescr, 31);
             $record->addField($inventNums[$x], 903);
             $record->addField($book, 201);
-            $record->addField($irbisDates[0], 41);
+            $record->addField($irbisDates[0] . " " . $time, 41);
             $record->addField($irbisDates[1], 42);
             $record->addField($librarian, 50);
             $record->addField($maxMfn, 903);

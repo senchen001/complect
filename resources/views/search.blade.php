@@ -68,6 +68,7 @@
                                         
                                         echo "<div style='color:red;'><h5>статус:</h5>".$bookStatus."</div><br>";    
                                     }else{
+                                        
                                         echo "<h5>статус:</h5>".$bookStatus."<br>";
                                     }
                                 }else{
@@ -106,7 +107,7 @@
                         <div class="container mt-5">
                             <form action="/giveComplect" method="post">
                             @csrf
-                                @if(Auth::check() && Auth::user()->name && session('reader') && count($complectRecs) > 1 && $complectStatus)
+                                @if(Auth::check() && Auth::user()->name && session('reader') && count($complectRecs) > 1 && $complectStatus && $bookStatus!="Выдан читателю")
                                 <input type="hidden" class="form-control" name="librarian" value="{{ Auth::user()->name }}">
                                 
                                 <input type="hidden" class="form-control" name="reader" value="{{ session('reader') }}">
