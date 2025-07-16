@@ -32,5 +32,7 @@ Route::post('/storloc/store', [InventoryController::class, 'storeStorloc'])->nam
 
 Auth::routes();
 Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'show'])->name('profile');
+Route::put('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+Route::put('/profile/password', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.password.update');
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
