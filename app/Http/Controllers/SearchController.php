@@ -23,8 +23,7 @@ class SearchController extends Controller
         ]);
         $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'IBIS');
         if ($irbis->login()) {
-            //echo "Logged in successfully.<br>";
-            
+        
                 $res = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1);//для вывода инфо о книге
                 if(!isset($res['records'])){//если запись не найдена по IN= ищем по INS=
                     $res = $irbis->records_search('INS='.$validated['inputNumber'], 10, 1);
@@ -112,7 +111,7 @@ class SearchController extends Controller
         
         // возвращаем статус комплекта - выдан ли он читателю
         if(count($complect) > 1){
-            $complectStatus = $this->getComplectStatus($complect);
+            $complectStatus = $this->getComplectStatus($complect, $irbis);
         }else{
             $complectStatus = 1; //экземпляр не состоит в комплекте
         }
@@ -127,9 +126,9 @@ class SearchController extends Controller
     }
 
 
-    public function getComplectStatus($complect){
+    public function getComplectStatus($complect, $irbis){
         
-        $borrowedBook = borrowedBook::where('inv_num', $complect[0])->first();
+        /*$borrowedBook = borrowedBook::where('inv_num', $complect[0])->first();
         if($borrowedBook){
             if($borrowedBook->inv_num == $complect[0]){
                 $complectStatus = false; // комплект выдан читателю
@@ -138,10 +137,28 @@ class SearchController extends Controller
             }
         }else{
             $complectStatus = true; //комплек доступен для выдачи
-        }
-        
-        return $complectStatus;
+        }*/
+///////////////////выясним выдан ли какой-то из экземпляров комплекта читателю
+        $complectStatus = true;
+        for($i=0; $i<count($complect)-1; $i++){
+            $res = $irbis->records_search('IN='.$complect[$i], 10, 1,$format = '@all');
+            $mfn = $res['records'][0][0];
+            $record = $irbis->record_read($mfn);
+            
+            foreach($record->record['fields'][910] as $field){
+                if($field['B'] == $complect[$i]){
+                    //echo $field['A'] . "<br>";
+                    if($field['A'] == 1){//если статус выдан читателю, то комплект не доступен для выдачи
+                        $complectStatus = false;
+                        
+                    }
+                }
+            //dd($record);
+            }        
     }
+    //dd($complectStatus);
+    return $complectStatus;
+}
 
     public function isInvNum($record, $invNum, &$invNumFromDB) {
     $is910 = strpos($record, "910/");

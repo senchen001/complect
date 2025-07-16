@@ -71,7 +71,9 @@ class InventoryController extends Controller
                         $book = $irbis->records_search('EXU='.$validated['invNum'], 10, 1);
                         $pref = 'EXU=';
                         if(!isset($book['records'])){//запись не найдена
-                            dd("запись не найдена по префиксам IN, INS, EXU");
+                            //dd("запись не найдена по префиксам IN, INS, EXU");
+                            $invNum = $validated['invNum'];
+                            return view('inventory.recNotFound', compact('invNum'));
                         }
                     }
                 }
@@ -84,7 +86,8 @@ class InventoryController extends Controller
                         $bookShortRec = $irbis->records_search('EXU='.$validated['invNum'], 10, 1);
                         $pref = 'EXU=';
                         if(!isset($bookShortRec['records'])){//запись не найдена
-                            dd("запись не найдена по префиксам IN, INS, EXU");
+                            //dd("запись не найдена по префиксам IN, INS, EXU");
+                            return view('inventory.recNotFound');
                         }
                     }
                 }
