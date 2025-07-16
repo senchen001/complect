@@ -32,7 +32,9 @@ class SearchController extends Controller
                         $res = $irbis->records_search('EXU='.$validated['inputNumber'], 10, 1);
                         $pref = 'EXU=';
                         if(!isset($res['records'])){//запись не найдена
-                            dd("запись не найдена по префиксам IN, INS, EXU");
+                            //dd("запись не найдена по префиксам IN, INS, EXU");
+                            $invNum = $validated['inputNumber'];
+                            return view('recNotFound', compact('invNum'));
                         }
                     }
                 }         
