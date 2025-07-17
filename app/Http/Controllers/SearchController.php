@@ -82,7 +82,11 @@ class SearchController extends Controller
             if($book == "spisan"){
                 $bookStatus = "Архивные сведения списание (940)";
             }
-        }else{dd("no book");}
+        }else{
+            $invNum = $validated['inputNumber'];
+            return view('recNotFound', compact('invNum'));
+            //dd("no book");
+        }
 
         
         $result = $res;
