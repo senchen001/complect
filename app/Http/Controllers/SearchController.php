@@ -150,15 +150,18 @@ class SearchController extends Controller
             $res = $irbis->records_search('IN='.$complect[$i], 10, 1,$format = '@all');
             $mfn = $res['records'][0][0];
             $record = $irbis->record_read($mfn);
-            
+            //dd($record);
             foreach($record->record['fields'][910] as $field){
-                if($field['B'] == $complect[$i]){
-                    //echo $field['A'] . "<br>";
-                    if($field['A'] == 1){//если статус выдан читателю, то комплект не доступен для выдачи
-                        $complectStatus = false;
-                        
+                //dd($field['B']);
+                if(isset($field['B'])){
+                    if($field['B'] == $complect[$i]){
+                        //echo $field['A'] . "<br>";
+                        if($field['A'] == 1){//если статус выдан читателю, то комплект не доступен для выдачи
+                            $complectStatus = false;
+                            break;
                     }
                 }
+            }
             //dd($record);
             }        
     }

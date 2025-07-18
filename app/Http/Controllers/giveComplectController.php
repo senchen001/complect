@@ -177,10 +177,13 @@ class giveComplectController extends Controller
             $c = 1;
             foreach($rec['fields']["910"] as $field){
                 //echo $c . " " . $field["B"] . " " . $field["A"] . "<br>";
-                if($field["B"] == $inventNum){
-                    $record->setField($status, 910, $c, 'A');
+                if(isset($field["B"])){
+                    if($field["B"] == $inventNum){
+                        $record->setField($status, 910, $c, 'A');
+                    }
                 }
                 $c++;
+            
             }
             
             $irbis->record_write($record->getRecordArray(), false, true);
