@@ -84,22 +84,15 @@
                     
 
                     <div>
-                                         
+                                                
                         <?php
                         if(isset($complectRecs)){
                             if(count($complectRecs) > 0){                            
-                                $number = 1;
-                                echo "<h2>Записи в комплекте</h2>";
-                                echo "<table border='1'>";
-                                echo "<tr><th>№</th><th>Экземпляр</th><th>Инв. номер</th></tr>";
+                                echo "<h2>Записи в комплекте</h2><ol>";
                                 foreach ($complectRecs as $rec) {
-                                    $rec = explode("<br>", $rec);
-                                    echo "<tr border='1'>";
-                                    echo "<td>".$number."</td><td>".$rec[0]."</td><td>".$rec[1]."</td>";
-                                    echo "</tr>";
-                                    $number++;
+                                    echo "<li>".$rec."</li>";
                                 }
-                                echo "</table>";
+                                echo "</ol>";
                             }
                         
                         }
@@ -123,7 +116,6 @@
                                 if(isset($complectRecs)){
                                     if(count($complectRecs) > 0){                            
                                         $bookNum = 1;
-                                        
                                         foreach ($complectRecs as $rec) {
                                             echo "<input type='hidden' name='book". $bookNum . "' value='" . $rec . "'>";
                                             $bookNum++;
@@ -135,7 +127,7 @@
 
                                 <div class="form-group">
                                     <label for="datepicker">Календарь</label>
-                                    <input type="text" class="form-control" id="datepicker" name="day" placeholder="Выберите дату возврата" autocomplete="off" value="{{ session('returnDate') }}">
+                                    <input type="text" class="form-control" id="datepicker" name="day" placeholder="Выберите дату возврата" autocomplete="off">
                                 </div>
                                 <br>
                                 
@@ -144,28 +136,12 @@
                                 @endif
                             </form>
                         </div>
-                        <style>
-                            /* Стилизация для выделения текущей даты */
-                            .datepicker table tr td.today {
-                                border: 2px solid #007bff !important;
-                                border-radius: 3px;
-                                background-color: #e3f2fd !important;
-                                font-weight: bold;
-                            }
-                            
-                            .datepicker table tr td.today:hover {
-                                border: 2px solid #0056b3 !important;
-                                background-color: #bbdefb !important;
-                            }
-                        </style>
-                        
                         <script>
                             $(document).ready(function() {
                                 $('#datepicker').datepicker({
                                 format: 'dd.mm.yyyy', // Формат даты
                                 language: 'ru', // Язык
-                                autoclose: true, // Закрытие после выбора даты
-                                todayHighlight: true // Подсветка текущей даты
+                                autoclose: true // Закрытие после выбора даты
                                 });
                             });
                         </script>

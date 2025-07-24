@@ -108,7 +108,7 @@ class SearchController extends Controller
             for($i=0; $i<count($complect)-1; $i++){                
                 $res = $irbis->records_search('IN='.$complect[$i], 10, 1);
                 if(isset($res['records'][0][1])){
-                    $complectRecs[] = $res['records'][0][1] . " <br> Инвентарный номер: ".$complect[$i];//в массиве записи книг, которые входят в комплект
+                    $complectRecs[] = $res['records'][0][1] . " <br> ".$complect[$i];//в массиве записи книг, которые входят в комплект
                 }else{
                     dd("проверьте запись с комплектами в БД RDRKV2");
                 }

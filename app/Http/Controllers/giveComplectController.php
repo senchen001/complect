@@ -35,6 +35,7 @@ class giveComplectController extends Controller
         //echo "дата возврата: " . $request->day . "<br>";
         //echo "дата выдачи: " . date('Y-m-d');
         $returnDate = $request->day;
+        session(['returnDate' => $returnDate]);
         $giveDate = date('Y-m-d');
         $irbisDates = $this->dateToIrbisDate($giveDate, $returnDate);//в массиве дата выдачи и дата возврата
 
