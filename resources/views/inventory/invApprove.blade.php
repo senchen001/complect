@@ -28,7 +28,15 @@
         </div>
 
         <hr>
-
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Статус экземпляра:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $bookStatus }}
+            </div>
+        </div>
+        <hr>
         <div class="row">
             <div class="col-md-3">
                 <label for="storLoc">База данных:</label>
@@ -83,15 +91,7 @@
         </div>
         <hr>
         <br>
-        <div class="row">
-            <div class="col-md-3">
-                <label for="rastShifr">Статус экземпляра:</label>
-            </div>
-            <div class="col-md-3">
-                {{ $bookStatus }}
-            </div>
-        </div>
-        <hr>
+        
         <div class="row">
             <div class="col-md-3">
                 <label for="rastShifr">Экземпляр:</label>

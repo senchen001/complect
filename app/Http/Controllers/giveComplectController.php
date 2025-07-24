@@ -27,7 +27,7 @@ class giveComplectController extends Controller
         }
         //соберем инвентарники в массив
         foreach($books as $book){
-            $rec = explode(":", $book);//инвентарн номер лежит в конце строки после :
+            $rec = explode("<br>", $book);//инвентарн номер лежит в конце строки после :
             $arr_len = count($rec);
             $inventNums[] = trim($rec[$arr_len-1]);//массив с инвентарными номерами
         }
@@ -172,7 +172,7 @@ class giveComplectController extends Controller
         $irbis->set_db('IBIS');
         
         $bookRecord = $irbis->records_search('IN='.$inventNum, 10, 1, $format = '@all');
-        dd($bookRecord);
+        //dd($bookRecord);
         if (!empty($bookRecord['records'][0])) {
             
             $mfn = $bookRecord['records'][0][0];
