@@ -93,8 +93,11 @@ class giveComplectController extends Controller
             $x++;
         
         }////////////////////////////конец записи книги на читателя
+        
         //запишем данные в БД REQREC    
         $this->recordBooksToIrbis($books, $inventNums, $irbisDates, $irbis, $librarian, $reader);    
+        //обнудим читателя в сессии
+        session()->forget('reader');
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
@@ -169,7 +172,7 @@ class giveComplectController extends Controller
         $irbis->set_db('IBIS');
         
         $bookRecord = $irbis->records_search('IN='.$inventNum, 10, 1, $format = '@all');
-        
+        dd($bookRecord);
         if (!empty($bookRecord['records'][0])) {
             
             $mfn = $bookRecord['records'][0][0];
@@ -191,7 +194,7 @@ class giveComplectController extends Controller
             //dd($rec['fields']["910"]);
             
         } else {
-            echo "Запись не найдена";
+            echo "Запись не найдена123";
         }
         
         
