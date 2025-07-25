@@ -105,7 +105,8 @@ class giveComplectController extends Controller
     }
 
     public function recordBooksToIrbis($books, $inventNums, $irbisDates, $irbis, $librarian, $reader){
-        $irbis->set_db('REQREC2');
+        $ReqRecDB = config('app.ReqRecDataBase');
+        $irbis->set_db($ReqRecDB);
         date_default_timezone_set('Europe/Moscow');
         $maxMfn = $irbis->mfn_max();
         $x = 0;

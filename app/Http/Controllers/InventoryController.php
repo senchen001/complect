@@ -38,6 +38,32 @@ class InventoryController extends Controller
             'book_descr' => $request->input('bookDescr'),
             'db' => $request->input('db')
             ]);
+
+            //запишем данные в БД REQREC
+            $ReqRecDB = config('app.ReqRecDataBase');
+            $irbisServerPort = config('app.irbisServerPort');
+            $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $ReqRecDB);
+            if ($irbis->login()) {
+                date_default_timezone_set('Europe/Moscow');
+                $day = date('Y-m-d H:i:s');
+                $maxMfn = $irbis->mfn_max();
+                $record = new \irbisRecord();
+                $record->addField($request->input('invNum'), 903);
+                $record->addField($request->input('bookDescr'), 201);
+                $record->addField($day, 40);
+                $record->addField($request->input('db'), 1);
+                $record->addField(auth()->user()->name, 50);
+                $record->addField('INV', 920);
+
+                $recordArray = $record->getRecordArray();
+                $write_result = $irbis->record_write($recordArray, false, true);
+                if ($write_result !== '') {
+                    dd('Ошибка записи: ' . $irbis->error($write_result));
+                }
+                $irbis->logout();
+            }else{
+                dd("Не удалось подключиться к серверу ИРБИС");
+            }
         return view('inventory.invApproved');
     }
 
