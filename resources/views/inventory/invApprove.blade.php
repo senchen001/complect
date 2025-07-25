@@ -20,7 +20,7 @@
             <div class="col-md-3">
                 
                 @if($invStatus)
-                    <p class="text-success">экземпляр прошел инвентаризацию</p>
+                    <p class="text-success">экземпляр прошел инвентаризацию {{ $invDate }}</p>
                 @else
                     <p class="text-danger">экземпляр не прошел инвентаризацию</p>
                 @endif   

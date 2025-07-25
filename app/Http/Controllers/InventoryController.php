@@ -28,6 +28,7 @@ class InventoryController extends Controller
         $validated = $request->validate([
         'booksNum' => 'required|integer|min:1'
         ]);
+        date_default_timezone_set('Europe/Moscow');
         // Создание записи в базе данных
         InventoryApproval::create([
             'labrarian' => auth()->user()->name,
@@ -44,7 +45,7 @@ class InventoryController extends Controller
             $irbisServerPort = config('app.irbisServerPort');
             $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $ReqRecDB);
             if ($irbis->login()) {
-                date_default_timezone_set('Europe/Moscow');
+                
                 $day = date('Y-m-d H:i:s');
                 $maxMfn = $irbis->mfn_max();
                 $record = new \irbisRecord();
@@ -175,11 +176,24 @@ class InventoryController extends Controller
                 $bookStatus = $this->getBookStatus($book, $validated['invNum'], $irbis);
                 $invNum = $validated['invNum'];
                 $invStatus = $this->getInventoryStatus($invNum);
-                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus'));
+                if($invStatus){
+                    $invDate = $this->getInvDate($invNum);
+                }else{
+                    $invDate = "";
+                }
+                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate'));
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
     }//////////////////////////end of invFind()
+
+    public function getInvDate($invNumber){
+        $record = InventoryApproval::where('inv_num', $invNumber)->first();
+        $invDate = $record->created_at;
+        $a = explode(" ", $invDate);
+        $invDate = $a[0];
+        return $invDate;
+    }
 
     public function getInventoryStatus($invNumber){//проверим прошла ли книга инвентаризацию
         $record = InventoryApproval::where('inv_num', $invNumber)->first();
