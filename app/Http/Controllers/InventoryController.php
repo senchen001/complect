@@ -219,6 +219,15 @@ class InventoryController extends Controller
                 }
                 break;
             }
+            if(isset($field["H"])){
+                if($field["H"] == $invNum){
+                    if(isset($field["R"])){
+                        $rastShifrFound = $field["R"];
+                    }else{
+                        $rastShifrFound = "место хранения не найдено";
+                    }
+                }
+            }
         } 
         //если расстановочный шифр совпадает с тем, что ввел пользователь, то статус true, иначе false
         if($rastShifrFound == $usersRastShifr){
@@ -237,6 +246,7 @@ class InventoryController extends Controller
         $record = $irbis->record_read($mfn);
         
         foreach($record->record['fields'][910] as $field){
+            //dd($record->record['fields'][910]);
             if($field["B"] == $invNum){
                 if(isset($field["D"])){
                     $storLocFound = $field["D"];
@@ -244,6 +254,15 @@ class InventoryController extends Controller
                     $storLocFound = "место хранения не найдено";
                 }
                 break;
+            }
+            if(isset($field["H"])){
+                if($field["H"] == $invNum){
+                    if(isset($field["D"])){
+                        $storLocFound = $field["D"];
+                    }else{
+                        $storLocFound = "место хранения не найдено";
+                    }
+                }
             }
         } 
         //если расстановочный шифр совпадает с тем, что ввел пользователь, то статус true, иначе false
@@ -284,6 +303,12 @@ class InventoryController extends Controller
             if($field["B"] == $invNum){
                 $bookStatus = $field["A"];
                 break;
+            }
+            if(isset($field["H"])){
+                if($field["H"] == $invNum){
+                    $bookStatus = $field["A"];
+                    break;
+                }
             }
            
         }
