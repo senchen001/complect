@@ -179,7 +179,7 @@ class InventoryController extends Controller
                 $invNum = $this->getInvNum($invNum, $irbis, $book);
                 $invStatus = $this->getInventoryStatus($invNum);
                 if($invStatus){
-                    $invDate = $this->getInvDate($invNum);
+                    $invDate = $this->getInvDate($invNum, $irbis, $book);
                 }else{
                     $invDate = "";
                 }
@@ -219,12 +219,37 @@ class InventoryController extends Controller
         return $invNum;
     }
 
-    public function getInvDate($invNumber){
-        $record = InventoryApproval::where('inv_num', $invNumber)->first();
+    public function getInvDate($invNumber, $irbis, $book){
+       /* $record = InventoryApproval::where('inv_num', $invNumber)->first();
         $invDate = $record->created_at;
         $a = explode(" ", $invDate);
         $invDate = $a[0];
-        return $invDate;
+        return $invDate;*/
+        $mfn = $book['records'][0][0];
+        $record = $irbis->record_read($mfn);
+        foreach($record->record['fields'][910] as $field){
+            if(isset($field["B"]) && $field["B"] == $invNumber){
+                if(isset($field["S"])){                
+                    $invDate = $field["S"];
+                }else{
+                    $invDate = "дата инвентаризации не найдена";
+                }                
+            }
+            if(isset($field["H"]) && $field["H"] == $invNumber){
+                if(isset($field["S"])){                
+                    $invDate = $field["S"];
+                }else{
+                    $invDate = "дата инвентаризации не найдена";
+                }                
+            }
+            
+        }
+        //переведем дату в формат dd.mm.yyyy
+        $year = substr($invDate, 0, 4);
+        $month = substr($invDate, 4, 2);
+        $day = substr($invDate, 6, 2);
+        $invDate = $day . "." . $month . "." . $year;
+        return $invDate;    
     }
 
     public function getInventoryStatus($invNumber){//проверим прошла ли книга инвентаризацию
