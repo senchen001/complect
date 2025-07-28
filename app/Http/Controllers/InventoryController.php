@@ -105,7 +105,7 @@ class InventoryController extends Controller
                     }
                 }
                 
-            $bookShortRec = $irbis->records_search('IN='.$validated['invNum'], 10, 1);
+            $bookShortRec = $irbis->records_search('IN='.$validated['invNum'], 10, 1, $format = '@brief_ik');
                 if(!isset($bookShortRec['records'])){//если запись не найдена по IN= ищем по INS=
                     $bookShortRec = $irbis->records_search('INS='.$validated['invNum'], 10, 1);
                     $pref = 'INS=';
@@ -175,17 +175,47 @@ class InventoryController extends Controller
                 $rastShifrFound = $this->getRastShifr($book, $validated['invNum'], $usersRastShifr, $irbis);
                 $bookStatus = $this->getBookStatus($book, $validated['invNum'], $irbis);
                 $invNum = $validated['invNum'];
+                $barcode = $this->getBarcode($invNum, $irbis, $book);
+                $invNum = $this->getInvNum($invNum, $irbis, $book);
                 $invStatus = $this->getInventoryStatus($invNum);
                 if($invStatus){
                     $invDate = $this->getInvDate($invNum);
                 }else{
                     $invDate = "";
                 }
-                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate'));
+                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate', 'barcode'));
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
     }//////////////////////////end of invFind()
+
+    public function getBarcode($invNum, $irbis, $book){
+        $mfn = $book['records'][0][0];
+        $record = $irbis->record_read($mfn);
+        foreach($record->record['fields'][910] as $field){
+            if(isset($field["H"]) && $field["H"] == $invNum){                
+                    $barcode = $field["H"];                
+            }else{
+                $barcode = "штрихкод не найден";
+            }
+            
+        }
+        return $barcode;
+    }
+    
+    public function getInvNum($invNum, $irbis, $book){
+        $mfn = $book['records'][0][0];
+        $record = $irbis->record_read($mfn);
+        foreach($record->record['fields'][910] as $field){
+            if(isset($field["B"])){                
+                    $invNum = $field["B"];                
+            }else{
+                $invNum = "инвентарный номер не найден";
+            }
+            
+        }
+        return $invNum;
+    }
 
     public function getInvDate($invNumber){
         $record = InventoryApproval::where('inv_num', $invNumber)->first();

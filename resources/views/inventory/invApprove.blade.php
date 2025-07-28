@@ -38,16 +38,10 @@
         </div>
         <hr>
         <div class="row">
-            <div class="col-md-3">
-                <label for="storLoc">База данных:</label>
-            </div>
-            <div class="col-md-3">
-                {{ $db }}
-            </div>
+            
             <input type="hidden" class="form-control" name="db" value="{{ $db }}">
         </div>
-        <hr>
-        <br>
+        
         <div class="row">
             <div class="col-md-3">
                 <label for="storLoc">Место хранения:</label>
@@ -91,7 +85,17 @@
         </div>
         <hr>
         <br>
-        
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Штрихкод:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $barcode }}
+            </div>
+            <input type="hidden" class="form-control" name="invNum" value="{{ $invNum }}">
+        </div>
+        <hr>
+        <br>
         <div class="row">
             <div class="col-md-3">
                 <label for="rastShifr">Экземпляр:</label>
