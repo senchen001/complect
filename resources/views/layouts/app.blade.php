@@ -98,6 +98,43 @@
         @yield('content')
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-light mt-5 py-4 border-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="text-primary">эКомплекты</h5>
+                    <p class="text-muted mb-1">Система управления библиотечным фондом</p>
+                    <p class="text-muted small">Инвентаризация • Комплектование • Книговыдача</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted mb-1">
+                        <small>© {{ date('Y') }} Библиотечная система</small>
+                    </p>
+                    <p class="text-muted small">
+                        Версия 1.0 • 
+                        <a href="#" class="text-decoration-none text-muted">Техническая поддержка</a>
+                    </p>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-info-circle"></i> 
+                        Интеграция с системой ИРБИС
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="text-muted small mb-0">
+                        <i class="fas fa-clock"></i> 
+                        Последнее обновление: {{ date('d.m.Y') }}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- Bootstrap 5 JS Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

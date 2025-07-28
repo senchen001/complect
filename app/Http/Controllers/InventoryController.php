@@ -183,7 +183,9 @@ class InventoryController extends Controller
                 }else{
                     $invDate = "";
                 }
-                return view('inventory.invApprove', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate', 'barcode'));
+                $rastshifrs = Rastshifr::all();
+                $storlocs = StorLoc::all();
+                return view('inventory.index', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate', 'barcode', 'rastshifrs', 'storlocs'));
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }

@@ -82,6 +82,128 @@
     </form>
 </div>
 
+@if(isset($invStatus))
+<div class="container mt-4">
+    <h2>Результат проверки</h2>
+    <form action="{{ route('approveAccepted') }}" method="POST">
+        @csrf
+        <div class="row">
+            <div class="col-md-3">Кто проверяет:</div>
+            <div class="col-md-3">{{ Auth::user()->name }}</div>
+            <input type="hidden" class="form-control" name="librarian" value="{{ Auth::user()->name }}">
+        </div>
+        <hr>
+        <br>
+              
+        <div class="row">
+            <div class="col-md-3">
+                <label for="storLoc">Статус инвентаризации:</label>
+            </div>
+            <div class="col-md-3">
+                
+                @if($invStatus)
+                    <p class="text-success">экземпляр прошел инвентаризацию {{ $invDate }}</p>
+                @else
+                    <p class="text-danger">экземпляр не прошел инвентаризацию</p>
+                @endif   
+            </div>            
+        </div>
+
+        <hr>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Статус экземпляра:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $bookStatus }}
+            </div>
+        </div>
+        <hr>
+        <div class="row">
+            
+            <input type="hidden" class="form-control" name="db" value="{{ $db }}">
+        </div>
+        
+        <div class="row">
+            <div class="col-md-3">
+                <label for="storLoc">Место хранения:</label>
+            </div>
+            <div class="col-md-3">
+                @if($storLocFound['status'])
+                    {{ $storLocFound['storLoc'] }}
+                @else
+                    <p class="text-danger">место хранения в ИРБИС {{ $storLocFound['storLoc'] }}</p>
+                @endif
+            </div>
+            <input type="hidden" class="form-control" name="storLoc" value="{{ $storLocFound['storLoc'] }}">
+        </div>
+        <hr>
+        <br>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Расстановочный шифр:</label>
+            </div>
+            @if($rastShifrFound['status'])
+            <div class="col-md-3">
+                {{ $rastShifrFound['rastShifr'] }}
+            </div>
+            @else
+            <div class="col-md-3">
+                <p class="text-danger">Расстановочный шифр в ИРБИС {{ $rastShifrFound['rastShifr'] }}</p>
+            </div>
+            @endif
+            <input type="hidden" class="form-control" name="rastShifr" value="{{ $rastShifrFound['rastShifr'] }}">
+        </div>
+        <hr>
+        <br>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Инвентарный номер:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $invNum }}
+            </div>
+            <input type="hidden" class="form-control" name="invNum" value="{{ $invNum }}">
+        </div>
+        <hr>
+        <br>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Штрихкод:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $barcode }}
+            </div>
+            <input type="hidden" class="form-control" name="invNum" value="{{ $invNum }}">
+        </div>
+        <hr>
+        <br>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Экземпляр:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $bookDescr }}
+            </div>
+            <input type="hidden" class="form-control" name="bookDescr" value="{{ $bookDescr }}">
+        </div>
+
+        @if(!$invStatus)
+        <div class="form-group">
+            <label for="booksNum">Количество экземпляров</label>
+            <input type="text" class="form-control" name="booksNum" value="1">
+        </div>
+        <br>
+        @endif
+        
+        
+        @if(!$invStatus)
+            <button type="submit" class="btn btn-success">Инвентаризировать</button>
+        @endif
+    </form>
+    
+</div>
+@endif
 <!-- Модальное окно для добавления нового расстановочного шифра -->
 <div class="modal fade" id="addRastshifrModal" tabindex="-1" aria-labelledby="addRastshifrModalLabel" aria-hidden="true">
     <div class="modal-dialog">
