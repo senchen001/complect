@@ -240,18 +240,22 @@ class InventoryController extends Controller
     }//////////////////////////end of invFind()
 
     public function getBarcode($invNum, $irbis, $book){
-        
+    
         $mfn = $book['records'][0][0];
         $record = $irbis->record_read($mfn);
+        $barcode = "штрихкод не найден";
+        
         foreach($record->record['fields'][910] as $field){
-            //echo $field["B"] . " " . $invNum . "<br>";
-            if(isset($field["H"]) && $field["B"] == $invNum){                              
+            // Поиск штрихкода по инвентарному номеру (B -> H)
+            if(isset($field["H"]) && isset($field["B"]) && $field["B"] == $invNum){                              
                 $barcode = $field["H"];
-                break;                                                                                                                    
-            }else{
-                $barcode = "штрихкод не найден";
+                break;
             }
-            
+            // Поиск штрихкода по штрихкоду (если ввели штрихкод, возвращаем его же)
+            if(isset($field["H"]) && $field["H"] == $invNum){
+                $barcode = $field["H"];
+                break;
+            }
         }
         return $barcode;
     }
@@ -259,20 +263,22 @@ class InventoryController extends Controller
     public function getInvNum($invNum, $irbis, $book){
         $mfn = $book['records'][0][0];
         $record = $irbis->record_read($mfn);
+        $foundInvNum = "инвентарный номер не найден";
+        
         foreach($record->record['fields'][910] as $field){
-            //echo $field["B"] . " " . $invNum . "<br>";
-            if(isset($field["B"])){
-                if($field["B"] == $invNum){                
-                    $invNum = $field["B"]; 
-                    break;
-                }               
-            }else{
-                $invNum = "инвентарный номер не найден";
+            // Поиск инвентарного номера по инвентарному номеру (B -> B)
+            if(isset($field["B"]) && $field["B"] == $invNum){                
+                $foundInvNum = $field["B"]; 
+                break;
             }
-            
+            // Поиск инвентарного номера по штрихкоду (H -> B)
+            if(isset($field["H"]) && isset($field["B"]) && $field["H"] == $invNum){
+                $foundInvNum = $field["B"];
+                break;
+            }
         }
         
-        return $invNum;
+        return $foundInvNum;
     }
 
     public function getInvDate($invNumber, $irbis, $book){
