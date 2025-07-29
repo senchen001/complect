@@ -26,6 +26,9 @@ Route::post('/giveComplect', [giveComplectController::class, 'giveComplect'])->n
 Route::get('/inventory', [InventoryController::class, 'show'])->name('inventory');
 Route::post('/invApprove', [InventoryController::class, 'invApprove'])->name('invApprove');
 Route::post('/invFind', [InventoryController::class, 'invFind'])->name('invFind');
+Route::get('/invFind', function() {
+    return redirect()->route('inventory');
+})->name('invFind.get');
 Route::post('/approveAccepted', [InventoryController::class, 'approveAccepted'])->name('approveAccepted');
 Route::post('/rastshifr/store', [InventoryController::class, 'storeRastshifr'])->name('rastshifr.store');
 Route::post('/storloc/store', [InventoryController::class, 'storeStorloc'])->name('storloc.store');

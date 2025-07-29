@@ -171,7 +171,7 @@
             <div class="col-md-3">
                 {{ $barcode }}
             </div>
-            <input type="hidden" class="form-control" name="invNum" value="{{ $invNum }}">
+            <input type="hidden" class="form-control" name="barcode" value="{{ $barcode }}">
         </div>
         <hr>
         <br>
@@ -191,6 +191,8 @@
             <input type="text" class="form-control" name="booksNum" value="1">
         </div>
         <br>
+        @else
+        <input type="hidden" name="booksNum" value="1">
         @endif
         
         

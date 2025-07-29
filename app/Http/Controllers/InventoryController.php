@@ -24,7 +24,7 @@ class InventoryController extends Controller
     }
 
     public function approveAccepted(Request $request){
-        //dd($request);
+        
         $validated = $request->validate([
         'booksNum' => 'required|integer|min:1'
         ]);
@@ -45,7 +45,6 @@ class InventoryController extends Controller
             $irbisServerPort = config('app.irbisServerPort');
             $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $ReqRecDB);
             if ($irbis->login()) {
-                
                 $day = date('Y-m-d H:i:s');
                 $maxMfn = $irbis->mfn_max();
                 $record = new \irbisRecord();
@@ -63,8 +62,15 @@ class InventoryController extends Controller
                 }
 
                 //запишем дату инвентаризации в поле 910^S
-                $date = date('Ymd H:i:s');
-                $this->updateBookInventarisationDate($request->input('invNum'), $date, $irbis);
+                $date = date('Ymd');
+                $invNum = $request->input('invNum');
+                $barcode = $request->input('barcode');
+                if($invNum == "инвентарный номер не найден"){                   
+                    $this->updateBookInventarisationDate($barcode, $date, $irbis);
+                }else{
+                    $this->updateBookInventarisationDate($invNum, $date, $irbis);
+                }
+                
 
                 $irbis->logout();
             }else{
@@ -79,17 +85,23 @@ class InventoryController extends Controller
         $irbis->set_db('IBIS');
         
         $bookRecord = $irbis->records_search('IN='.$inventNum, 10, 1, $format = '@all');
-        //dd($bookRecord);
+        
         if (!empty($bookRecord['records'][0])) {
             
             $mfn = $bookRecord['records'][0][0];
+
             $record = $irbis->record_read($mfn);
             $rec = $record->getRecordArray();
             $c = 1;
             foreach($rec['fields']["910"] as $field){
-                //echo $c . " " . $field["B"] . " " . $field["A"] . "<br>";
+                //echo $c . " " . $field["B"] . " " . $field["H"] . "<br>";
                 if(isset($field["B"])){
                     if($field["B"] == $inventNum){
+                        $record->setField($date, 910, $c, 'S');
+                    }
+                }
+                if(isset($field["H"])){
+                    if($field["H"] == $inventNum){
                         $record->setField($date, 910, $c, 'S');
                     }
                 }
@@ -214,12 +226,11 @@ class InventoryController extends Controller
                 $rastShifrFound = $this->getRastShifr($book, $validated['invNum'], $usersRastShifr, $irbis);
                 $bookStatus = $this->getBookStatus($book, $validated['invNum'], $irbis);
                 $invNum = $validated['invNum'];
-                $barcode = $this->getBarcode($invNum, $irbis, $book);
-                $invNum = $this->getInvNum($invNum, $irbis, $book);
-                $invStatus = $this->getInventoryStatus($invNum);
-                
+                $barcode = $this->getBarcode($invNum, $irbis, $book);               
+                $invStatus = $this->getInventoryStatus($invNum);            
                 $invDate = $this->getInvDate($invNum, $irbis, $book);
-                                                
+                $invNum = $this->getInvNum($invNum, $irbis, $book);
+
                 $rastshifrs = Rastshifr::all();
                 $storlocs = StorLoc::all();
                 return view('inventory.index', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate', 'barcode', 'rastshifrs', 'storlocs'));
@@ -229,11 +240,14 @@ class InventoryController extends Controller
     }//////////////////////////end of invFind()
 
     public function getBarcode($invNum, $irbis, $book){
+        
         $mfn = $book['records'][0][0];
         $record = $irbis->record_read($mfn);
         foreach($record->record['fields'][910] as $field){
-            if(isset($field["H"]) && $field["H"] == $invNum){                
-                    $barcode = $field["H"];                
+            //echo $field["B"] . " " . $invNum . "<br>";
+            if(isset($field["H"]) && $field["B"] == $invNum){                              
+                $barcode = $field["H"];
+                break;                                                                                                                    
             }else{
                 $barcode = "штрихкод не найден";
             }
@@ -246,13 +260,18 @@ class InventoryController extends Controller
         $mfn = $book['records'][0][0];
         $record = $irbis->record_read($mfn);
         foreach($record->record['fields'][910] as $field){
-            if(isset($field["B"])){                
-                    $invNum = $field["B"];                
+            //echo $field["B"] . " " . $invNum . "<br>";
+            if(isset($field["B"])){
+                if($field["B"] == $invNum){                
+                    $invNum = $field["B"]; 
+                    break;
+                }               
             }else{
                 $invNum = "инвентарный номер не найден";
             }
             
         }
+        
         return $invNum;
     }
 
@@ -264,8 +283,11 @@ class InventoryController extends Controller
         return $invDate;*/
         $mfn = $book['records'][0][0];
         $record = $irbis->record_read($mfn);
+        
         foreach($record->record['fields'][910] as $field){
+            
             if(isset($field["B"]) && $field["B"] == $invNumber){
+                
                 if(isset($field["S"])){                
                     $invDate = $field["S"];
                     //переведем дату в формат dd.mm.yyyy
@@ -311,14 +333,17 @@ class InventoryController extends Controller
         $record = $irbis->record_read($mfn);
         
         foreach($record->record['fields'][910] as $field){
-            if($field["B"] == $invNum){
-                if(isset($field["R"])){
-                    $rastShifrFound = $field["R"];
-                }else{
-                    $rastShifrFound = "расстановочный шифр не найден";
+            if(isset($field["B"])){
+                if($field["B"] == $invNum){
+                    if(isset($field["R"])){
+                        $rastShifrFound = $field["R"];
+                    }else{
+                        $rastShifrFound = "расстановочный шифр не найден";
+                    }
+                    break;
                 }
-                break;
             }
+        
             if(isset($field["H"])){
                 if($field["H"] == $invNum){
                     if(isset($field["R"])){
@@ -347,13 +372,14 @@ class InventoryController extends Controller
         
         foreach($record->record['fields'][910] as $field){
             //dd($record->record['fields'][910]);
-            if($field["B"] == $invNum){
-                if(isset($field["D"])){
-                    $storLocFound = $field["D"];
-                }else{
-                    $storLocFound = "место хранения не найдено";
+            if(isset($field["B"])){
+                if($field["B"] == $invNum){
+                    if(isset($field["D"])){
+                        $storLocFound = $field["D"];
+                    }else{
+                        $storLocFound = "место хранения не найдено";
+                    }
                 }
-                break;
             }
             if(isset($field["H"])){
                 if($field["H"] == $invNum){
@@ -399,10 +425,11 @@ class InventoryController extends Controller
         $record = $irbis->record_read($mfn);
         
         foreach($record->record['fields'][910] as $field){
-            
-            if($field["B"] == $invNum){
-                $bookStatus = $field["A"];
-                break;
+            if(isset($field["B"])){
+                if($field["B"] == $invNum){
+                    $bookStatus = $field["A"];
+                    break;
+                }
             }
             if(isset($field["H"])){
                 if($field["H"] == $invNum){
