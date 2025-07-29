@@ -39,7 +39,7 @@ class InventoryController extends Controller
             'book_descr' => $request->input('bookDescr'),
             'db' => $request->input('db')
             ]);
-
+            
             //запишем данные в БД REQREC
             $ReqRecDB = config('app.ReqRecDataBase');
             $irbisServerPort = config('app.irbisServerPort');
@@ -61,11 +61,50 @@ class InventoryController extends Controller
                 if ($write_result !== '') {
                     dd('Ошибка записи: ' . $irbis->error($write_result));
                 }
+
+                //запишем дату инвентаризации в поле 910^S
+                $date = date('Ymd H:i:s');
+                $this->updateBookInventarisationDate($request->input('invNum'), $date, $irbis);
+
                 $irbis->logout();
             }else{
                 dd("Не удалось подключиться к серверу ИРБИС");
             }
         return view('inventory.invApproved');
+    }
+
+    public function updateBookInventarisationDate($inventNum, $date, $irbis)
+    {
+        //dd($inventNum);
+        $irbis->set_db('IBIS');
+        
+        $bookRecord = $irbis->records_search('IN='.$inventNum, 10, 1, $format = '@all');
+        //dd($bookRecord);
+        if (!empty($bookRecord['records'][0])) {
+            
+            $mfn = $bookRecord['records'][0][0];
+            $record = $irbis->record_read($mfn);
+            $rec = $record->getRecordArray();
+            $c = 1;
+            foreach($rec['fields']["910"] as $field){
+                //echo $c . " " . $field["B"] . " " . $field["A"] . "<br>";
+                if(isset($field["B"])){
+                    if($field["B"] == $inventNum){
+                        $record->setField($date, 910, $c, 'S');
+                    }
+                }
+                $c++;
+            
+            }
+            
+            $irbis->record_write($record->getRecordArray(), false, true);
+            //dd($rec['fields']["910"]);
+            
+        } else {
+            echo "Запись не найдена";
+        }
+        
+        
     }
 
     public function invFind(Request $request){
@@ -178,11 +217,9 @@ class InventoryController extends Controller
                 $barcode = $this->getBarcode($invNum, $irbis, $book);
                 $invNum = $this->getInvNum($invNum, $irbis, $book);
                 $invStatus = $this->getInventoryStatus($invNum);
-                if($invStatus){
-                    $invDate = $this->getInvDate($invNum, $irbis, $book);
-                }else{
-                    $invDate = "";
-                }
+                
+                $invDate = $this->getInvDate($invNum, $irbis, $book);
+                                                
                 $rastshifrs = Rastshifr::all();
                 $storlocs = StorLoc::all();
                 return view('inventory.index', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate', 'barcode', 'rastshifrs', 'storlocs'));
@@ -231,24 +268,30 @@ class InventoryController extends Controller
             if(isset($field["B"]) && $field["B"] == $invNumber){
                 if(isset($field["S"])){                
                     $invDate = $field["S"];
+                    //переведем дату в формат dd.mm.yyyy
+                    $year = substr($invDate, 0, 4);
+                    $month = substr($invDate, 4, 2);
+                    $day = substr($invDate, 6, 2);
+                    $invDate = $day . "." . $month . "." . $year;
                 }else{
-                    $invDate = "дата инвентаризации не найдена";
+                    $invDate = " не найдена";
                 }                
             }
             if(isset($field["H"]) && $field["H"] == $invNumber){
                 if(isset($field["S"])){                
                     $invDate = $field["S"];
+                    //переведем дату в формат dd.mm.yyyy
+                    $year = substr($invDate, 0, 4);
+                    $month = substr($invDate, 4, 2);
+                    $day = substr($invDate, 6, 2);
+                    $invDate = $day . "." . $month . "." . $year;
                 }else{
-                    $invDate = "дата инвентаризации не найдена";
+                    $invDate = " не найдена";
                 }                
             }
             
         }
-        //переведем дату в формат dd.mm.yyyy
-        $year = substr($invDate, 0, 4);
-        $month = substr($invDate, 4, 2);
-        $day = substr($invDate, 6, 2);
-        $invDate = $day . "." . $month . "." . $year;
+        
         return $invDate;    
     }
 

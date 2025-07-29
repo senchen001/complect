@@ -100,12 +100,9 @@
                 <label for="storLoc">Статус инвентаризации:</label>
             </div>
             <div class="col-md-3">
-                
-                @if($invStatus)
-                    <p class="text-success">экземпляр прошел инвентаризацию {{ $invDate }}</p>
-                @else
-                    <p class="text-danger">экземпляр не прошел инвентаризацию</p>
-                @endif   
+                                
+                <p class="text-success">Дата воследней инвентаризации {{ $invDate }}</p>
+                                                 
             </div>            
         </div>
 
@@ -197,9 +194,9 @@
         @endif
         
         
-        @if(!$invStatus)
-            <button type="submit" class="btn btn-success">Инвентаризировать</button>
-        @endif
+        
+        <button type="submit" class="btn btn-success">Инвентаризировать</button>
+        
     </form>
     
 </div>
