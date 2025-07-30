@@ -111,7 +111,7 @@ class SearchController extends Controller
         
         $irbis->set_db($complectDB);
                 
-        $res2 = $irbis->records_search('IN='.$validated['inputNumber'],  10, 1);//инвентарные номера записей в комплекте
+        $res2 = $irbis->records_search('IN='.$invNumFromDB,  10, 1);//инвентарные номера записей в комплекте
         //dd($res2['records'][0][1]);
         $complectRecs = Array();
         
