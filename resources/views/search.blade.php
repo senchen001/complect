@@ -2,15 +2,105 @@
 
 @section('content')
 <script src="js/jquery-3.5.1.slim.min.js"></script>
+<script src="js/bootstrap.bundle.min.js"></script>
+<script src="js/bootstrap-datepicker.min.js"></script>
+<script src="js/bootstrap-datepicker.ru.min.js"></script>
+
+<style>
+    /* Стилизация для выделения текущей даты */
+    .datepicker table tr td.today {
+        border: 2px solid #007bff !important;
+        border-radius: 3px;
+        background-color: #e3f2fd !important;
+        font-weight: bold;
+    }
+    
+    .datepicker table tr td.today:hover {
+        border: 2px solid #0056b3 !important;
+        background-color: #bbdefb !important;
+    }
+</style>
+
+<script>
+    $(document).ready(function() {
+        // Настройка видимого календаря
+        $('#datepicker-preview').datepicker({
+            format: 'dd.mm.yyyy', // Формат даты
+            language: 'ru', // Язык
+            autoclose: true, // Закрытие после выбора даты
+            todayHighlight: true // Подсветка текущей даты
+        });
+        
+        // Инициализация значений из сессии
+        var sessionDate = '{{ session("returnDate") }}';
+        if (sessionDate) {
+            $('#datepicker-preview').val(sessionDate);
+            $('#datepicker').val(sessionDate);
+            updateHiddenDateFields();
+        }
+        
+        // Функция для обновления всех скрытых полей с датой
+        function updateHiddenDateFields() {
+            var dateValue = $('#datepicker-preview').val();
+            $('#reader-form-date').val(dateValue);
+            $('#search-form-date').val(dateValue);
+        }
+        
+        // Настройка скрытого календаря (только для передачи данных)
+        $('#datepicker').datepicker({
+            format: 'dd.mm.yyyy',
+            language: 'ru',
+            autoclose: true,
+            todayHighlight: true
+        });
+        
+        // Односторонняя синхронизация: с видимого календаря в скрытый
+        $('#datepicker-preview').on('changeDate', function(e) {
+            $('#datepicker').datepicker('setDate', $(this).datepicker('getDate'));
+        });
+        
+        // Синхронизация при ручном вводе
+        $('#datepicker-preview').on('change blur', function() {
+            $('#datepicker').val($(this).val());
+            // Обновляем скрытые поля для всех форм
+            updateHiddenDateFields();
+        });
+        
+        // Обновляем скрытые поля при изменении календаря
+        $('#datepicker-preview').on('changeDate', function() {
+            updateHiddenDateFields();
+        });
+        
+        // Перед отправкой любой формы обновляем соответствующее скрытое поле
+        $('form[action*="searchReader"]').on('submit', function() {
+            $('#reader-form-date').val($('#datepicker-preview').val());
+        });
+        
+        $('form[action*="search"]:not([action*="searchReader"])').on('submit', function() {
+            $('#search-form-date').val($('#datepicker-preview').val());
+        });
+    });
+</script>
+
 <div class="container my-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm p-4">
                 <h3 class="mb-4 text-center">Введите данные</h3>
+                
+                <!-- Календарь для выбора даты возврата -->
+                <div class="form-group mb-4">
+                    <label for="datepicker-preview">Календарь (выберите дату возврата)</label>
+                    <input type="text" class="form-control" id="datepicker-preview" placeholder="Выберите дату возврата" autocomplete="off" value="{{ session('returnDate') }}">
+                </div>
+                
 <!--               Форма поиска читателя                   -->
 
                 <form method="POST" action="{{ route('searchReader') }}">
                     @csrf
+                    
+                    <!-- Скрытое поле для передачи даты календаря -->
+                    <input type="hidden" id="reader-form-date" name="calendar_date" value="">
                     
                     <div class="mb-3">
                         <input 
@@ -37,6 +127,9 @@
 <!--               Форма поиска экземпляра                   -->
                 <form method="POST" action="{{ route('search') }}">
                     @csrf
+                    
+                    <!-- Скрытое поле для передачи даты календаря -->
+                    <input type="hidden" id="search-form-date" name="calendar_date" value="">
                     
                     <div class="mb-3">
                         <input 
@@ -133,8 +226,8 @@
                                 }
                                 ?>  
 
-                                <div class="form-group">
-                                    <label for="datepicker">Календарь</label>
+                                <div class="form-group" style="display: none;">
+                                    <label for="datepicker">Календарь (дата возврата для выдачи)</label>
                                     <input type="text" class="form-control" id="datepicker" name="day" placeholder="Выберите дату возврата" autocomplete="off" value="{{ session('returnDate') }}">
                                 </div>
                                 <br>
@@ -144,35 +237,6 @@
                                 @endif
                             </form>
                         </div>
-                        <style>
-                            /* Стилизация для выделения текущей даты */
-                            .datepicker table tr td.today {
-                                border: 2px solid #007bff !important;
-                                border-radius: 3px;
-                                background-color: #e3f2fd !important;
-                                font-weight: bold;
-                            }
-                            
-                            .datepicker table tr td.today:hover {
-                                border: 2px solid #0056b3 !important;
-                                background-color: #bbdefb !important;
-                            }
-                        </style>
-                        
-                        <script>
-                            $(document).ready(function() {
-                                $('#datepicker').datepicker({
-                                format: 'dd.mm.yyyy', // Формат даты
-                                language: 'ru', // Язык
-                                autoclose: true, // Закрытие после выбора даты
-                                todayHighlight: true // Подсветка текущей даты
-                                });
-                            });
-                        </script>
-                        
-                        <script src="js/bootstrap.bundle.min.js"></script>
-                        <script src="js/bootstrap-datepicker.min.js"></script>
-                        <script src="js/bootstrap-datepicker.ru.min.js"></script>
                         @endif
                     </div>
                 

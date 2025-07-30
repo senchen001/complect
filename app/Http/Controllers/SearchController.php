@@ -20,16 +20,23 @@ class SearchController extends Controller
 
         $validated = $request->validate([
             'inputNumber' => 'required|string',
+            'calendar_date' => 'nullable|string',
         ]);
+        
+        // Сохраняем дату календаря в сессии, если она была передана
+        if (!empty($validated['calendar_date'])) {
+            session(['returnDate' => $validated['calendar_date']]);
+        }
+        
         $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'IBIS');
         if ($irbis->login()) {
         
-                $res = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1);//для вывода инфо о книге
+                $res = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1, $format = '@brief_ik');//для вывода инфо о книге
                 if(!isset($res['records'])){//если запись не найдена по IN= ищем по INS=
-                    $res = $irbis->records_search('INS='.$validated['inputNumber'], 10, 1);
+                    $res = $irbis->records_search('INS='.$validated['inputNumber'], 10, 1, $format = '@brief_ik');
                     $pref = 'INS=';
                     if(!isset($res['records'])){//если запись не найдена по INS= ищем по EXU=
-                        $res = $irbis->records_search('EXU='.$validated['inputNumber'], 10, 1);
+                        $res = $irbis->records_search('EXU='.$validated['inputNumber'], 10, 1, $format = '@brief_ik');
                         $pref = 'EXU=';
                         if(!isset($res['records'])){//запись не найдена
                             //dd("запись не найдена по префиксам IN, INS, EXU");
@@ -106,7 +113,7 @@ class SearchController extends Controller
         if(isset($res2['records'][0][1])){
             $complect = explode("*", $res2['records'][0][1]);
             for($i=0; $i<count($complect)-1; $i++){                
-                $res = $irbis->records_search('IN='.$complect[$i], 10, 1);
+                $res = $irbis->records_search('IN='.$complect[$i], 10, 1, $format = '@brief_ik');
                 if(isset($res['records'][0][1])){
                     $complectRecs[] = $res['records'][0][1] . " <br> ".$complect[$i];//в массиве записи книг, которые входят в комплект
                 }else{

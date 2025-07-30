@@ -18,7 +18,14 @@ class SearchReaderController extends Controller
         
         $validated = $request->validate([
             'reader' => 'required|string',
+            'calendar_date' => 'nullable|string',
         ]);
+        
+        // Сохраняем дату календаря в сессии, если она была передана
+        if (!empty($validated['calendar_date'])) {
+            session(['returnDate' => $validated['calendar_date']]);
+        }
+        
         $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDR');
         if ($irbis->login()) {
             $readerRec = $irbis->records_search('RI='.$validated['reader'], 10, 1);
