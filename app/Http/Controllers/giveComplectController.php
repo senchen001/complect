@@ -14,12 +14,14 @@ class giveComplectController extends Controller
 {
     public function giveComplect(Request $request)
     {
+
         $irbisServerPort = config('app.irbisServerPort');
         $books = Array();
         $inventNums = Array();
         $librarian = $request->librarian;
         $reader = $request->reader;
         $booksAmount = $request->booksAmount;//колличество книг в риквесте
+        $pickupLocation = $request->pickup_location;
         
         for($bookNum=1; $bookNum < $booksAmount; $bookNum++){        
             $book = "book".$bookNum;
@@ -95,7 +97,7 @@ class giveComplectController extends Controller
         }////////////////////////////конец записи книги на читателя
         
         //запишем данные в БД REQREC    
-        $this->recordBooksToIrbis($books, $inventNums, $irbisDates, $irbis, $librarian, $reader);    
+        $this->recordBooksToIrbis($books, $inventNums, $irbisDates, $irbis, $librarian, $reader, $pickupLocation);    
         //обнудим читателя в сессии
         session()->forget('reader');
         }else{
@@ -104,7 +106,7 @@ class giveComplectController extends Controller
         return view('givenComplectRecorded');
     }
 
-    public function recordBooksToIrbis($books, $inventNums, $irbisDates, $irbis, $librarian, $reader){
+    public function recordBooksToIrbis($books, $inventNums, $irbisDates, $irbis, $librarian, $reader, $pickupLocation){
         $ReqRecDB = config('app.ReqRecDataBase');
         $irbis->set_db($ReqRecDB);
         date_default_timezone_set('Europe/Moscow');
@@ -132,7 +134,8 @@ class giveComplectController extends Controller
             $record->addField($irbisDates[1], 42);
             $record->addField($librarian, 50);
             $record->addField($maxMfn, 903);
-
+            $record->addField($pickupLocation, 102);
+            
             $recordArray = $record->getRecordArray();
             $write_result = $irbis->record_write($recordArray, false, true);
             if ($write_result !== '') {

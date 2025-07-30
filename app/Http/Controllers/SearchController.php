@@ -21,11 +21,17 @@ class SearchController extends Controller
         $validated = $request->validate([
             'inputNumber' => 'required|string',
             'calendar_date' => 'nullable|string',
+            'pickup_location' => 'nullable|string',
         ]);
         
         // Сохраняем дату календаря в сессии, если она была передана
         if (!empty($validated['calendar_date'])) {
             session(['returnDate' => $validated['calendar_date']]);
+        }
+        
+        // Сохраняем место выдачи в сессии, если оно было передано
+        if (!empty($validated['pickup_location'])) {
+            session(['pickupLocation' => $validated['pickup_location']]);
         }
         
         $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'IBIS');

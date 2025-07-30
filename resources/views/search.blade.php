@@ -39,11 +39,30 @@
             updateHiddenDateFields();
         }
         
+        // Инициализация места выдачи из сессии
+        var sessionPickupLocation = '{{ session("pickupLocation") }}';
+        if (sessionPickupLocation) {
+            $('#pickupLocation').val(sessionPickupLocation);
+        } else {
+            // Устанавливаем значение по умолчанию, если нет сохраненного
+            $('#pickupLocation').val('lib1');
+        }
+        
+        // Инициализация скрытого поля места выдачи (после восстановления из сессии)
+        updateHiddenPickupLocation();
+        
         // Функция для обновления всех скрытых полей с датой
         function updateHiddenDateFields() {
             var dateValue = $('#datepicker-preview').val();
             $('#reader-form-date').val(dateValue);
             $('#search-form-date').val(dateValue);
+        }
+        
+        // Функция для обновления скрытых полей места выдачи
+        function updateHiddenPickupLocation() {
+            var pickupLocationValue = $('#pickupLocation').val();
+            $('#search-form-pickup-location').val(pickupLocationValue);
+            $('#reader-form-pickup-location').val(pickupLocationValue);
         }
         
         // Настройка скрытого календаря (только для передачи данных)
@@ -71,13 +90,36 @@
             updateHiddenDateFields();
         });
         
+        // Обновляем скрытое поле при изменении места выдачи
+        $('#pickupLocation').on('change', function() {
+            updateHiddenPickupLocation();
+        });
+        
         // Перед отправкой любой формы обновляем соответствующее скрытое поле
         $('form[action*="searchReader"]').on('submit', function() {
-            $('#reader-form-date').val($('#datepicker-preview').val());
+            var dateValue = $('#datepicker-preview').val();
+            var pickupLocationValue = $('#pickupLocation').val();
+            
+            $('#reader-form-date').val(dateValue);
+            $('#reader-form-pickup-location').val(pickupLocationValue);
+            
+            console.log('Отправляется форма поиска читателя с данными:', {
+                date: dateValue,
+                pickupLocation: pickupLocationValue
+            });
         });
         
         $('form[action*="search"]:not([action*="searchReader"])').on('submit', function() {
-            $('#search-form-date').val($('#datepicker-preview').val());
+            var dateValue = $('#datepicker-preview').val();
+            var pickupLocationValue = $('#pickupLocation').val();
+            
+            $('#search-form-date').val(dateValue);
+            $('#search-form-pickup-location').val(pickupLocationValue);
+            
+            console.log('Отправляется форма с данными:', {
+                date: dateValue,
+                pickupLocation: pickupLocationValue
+            });
         });
     });
 </script>
@@ -89,18 +131,34 @@
                 <h3 class="mb-4 text-center">Введите данные</h3>
                 
                 <!-- Календарь для выбора даты возврата -->
-                <div class="form-group mb-4">
-                    <label for="datepicker-preview">Календарь (выберите дату возврата)</label>
-                    <input type="text" class="form-control" id="datepicker-preview" placeholder="Выберите дату возврата" autocomplete="off" value="{{ session('returnDate') }}">
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="datepicker-preview">Календарь (выберите дату возврата)</label>
+                        <input type="text" class="form-control" id="datepicker-preview" placeholder="Выберите дату возврата" autocomplete="off" value="{{ session('returnDate') }}">
                 </div>
                 
-<!--               Форма поиска читателя                   -->
+                    
+                    <div class="col-md-4">
+                        <label for="pickupLocation">Место выдачи:</label>
+                        <select id="pickupLocation" name="pickupLocation" class="form-select"> <!-- Bootstrap 5: form-select для выпадающих списков -->
+                            <option value="lib1" {{ session('pickupLocation') == 'lib1' || !session('pickupLocation') ? 'selected' : '' }}>Библиотека 1</option>
+                            <option value="lib2" {{ session('pickupLocation') == 'lib2' ? 'selected' : '' }}>Библиотека 2</option>
+                            <option value="lib3" {{ session('pickupLocation') == 'lib3' ? 'selected' : '' }}>Библиотека 3</option>
+                        </select>
+                    </div>
+                </div>
 
+<!--               Форма поиска читателя                   -->
+                <br>
+                <p>Введите ID читателя</p>
                 <form method="POST" action="{{ route('searchReader') }}">
                     @csrf
                     
                     <!-- Скрытое поле для передачи даты календаря -->
                     <input type="hidden" id="reader-form-date" name="calendar_date" value="">
+                    
+                    <!-- Скрытое поле для передачи места выдачи -->
+                    <input type="hidden" id="reader-form-pickup-location" name="pickup_location" value="">
                     
                     <div class="mb-3">
                         <input 
@@ -125,11 +183,14 @@
                 </p>
                 <br>
 <!--               Форма поиска экземпляра                   -->
+                <p>Введите инвентарный номер или штрихкод экземпляра из комплекта</p>
                 <form method="POST" action="{{ route('search') }}">
                     @csrf
                     
                     <!-- Скрытое поле для передачи даты календаря -->
                     <input type="hidden" id="search-form-date" name="calendar_date" value="">
+                    
+                    
                     
                     <div class="mb-3">
                         <input 
@@ -212,6 +273,9 @@
                                 
                                 <input type="hidden" class="form-control" name="reader" value="{{ session('reader') }}">
                                 
+                                <!-- Скрытое поле для передачи места выдачи -->
+                                <input type="hidden" id="search-form-pickup-location" name="pickup_location" value="">
+
                                 <?php
                                 if(isset($complectRecs)){
                                     if(count($complectRecs) > 0){                            
