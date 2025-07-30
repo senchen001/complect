@@ -197,7 +197,7 @@
                            
                           name="inputNumber" 
                           class="form-control" 
-                          placeholder="Введите инвентарный номер" 
+                          placeholder="Введите инвентарный номер или штрих-код" 
                           
                           required />
                     </div>
@@ -214,8 +214,11 @@
                             //dd($result["records"]);
                             foreach ($result["records"] as $item) {
                                 echo "<h5>экземпляр:</h5>".$item[1]."<br>";
-                                echo "<h5>инвентарный номер:</h5>".$invNum."<br>";
-                                echo "<h5>инвентарный номер из БД:</h5>".$invNumFromDB."<br>";
+                                echo "<h5>инвентарный номер:</h5>".$invNumFromDB."<br>";
+                                if(isset($barcode) && $barcode != "штрихкод не найден"){
+                                    echo "<h5>штрих-код:</h5>".$barcode."<br>";
+                                }
+                                echo "<h5>что вы искали:</h5>".$invNum."<br>";
                                 if(isset($bookStatus)){
                                     
                                     if($bookStatus=="Утерян" || $bookStatus=="Списан"){

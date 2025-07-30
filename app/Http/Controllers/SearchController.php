@@ -101,6 +101,8 @@ class SearchController extends Controller
             //dd("no book");
         }
 
+        // Получаем штрих-код для найденной записи
+        $barcode = $this->getBarcode($validated['inputNumber'], $irbis, $resAll);
         
         $result = $res;
 
@@ -137,11 +139,33 @@ class SearchController extends Controller
 
         // Возвращаем шаблон с результатом
         if(isset($bookStatus)){
-            return view('search', compact('result', 'complectRecs', 'bookStatus', 'invNum', 'invNumFromDB', 'complectStatus'));
+            return view('search', compact('result', 'complectRecs', 'bookStatus', 'invNum', 'invNumFromDB', 'barcode', 'complectStatus'));
         }else{
             
-            return view('search', compact('result', 'complectRecs', 'invNum'));
+            return view('search', compact('result', 'complectRecs', 'invNum', 'barcode'));
         }
+    }
+
+    public function getBarcode($inputNumber, $irbis, $book){
+        $mfn = $book['records'][0][0];
+        $record = $irbis->record_read($mfn);
+        $barcode = "штрихкод не найден";
+        
+        global $invNumFromDB;
+        
+        foreach($record->record['fields'][910] as $field){
+            // Ищем запись с нужным инвентарным номером и извлекаем штрих-код
+            if(isset($field["B"]) && $field["B"] == $invNumFromDB && isset($field["H"])){
+                $barcode = $field["H"];
+                break;
+            }
+            // Если ввели штрих-код, проверяем этот штрих-код
+            if(isset($field["H"]) && $field["H"] == $inputNumber){
+                $barcode = $field["H"];
+                break;
+            }
+        }
+        return $barcode;
     }
 
 
@@ -183,41 +207,73 @@ class SearchController extends Controller
 }
 
     public function isInvNum($record, $invNum, &$invNumFromDB) {
-    $is910 = strpos($record, "910/");
-    if ($is910 !== false) {
-        // Find the position of ^B - this is where the inventory number starts
-        $isB = strpos($record, "^B");
-        if ($isB === false) {
-            return false; // If ^B is not found, return false
-        }
-        
-        $startPos = $isB + 2;
-        $invNumFromRec = Array();
-        
-        // Loop through the record starting from the position after ^B
-        for ($i = $startPos; $i < strlen($record); $i++) {
-            // The inventory number ends with ^
-            if ($record[$i] == "^") {
-                break; // Exit the loop if we reach the end of the inventory number
+        $is910 = strpos($record, "910/");
+        if ($is910 !== false) {
+            // Сначала проверяем поиск по инвентарному номеру (^B)
+            $isB = strpos($record, "^B");
+            if ($isB !== false) {
+                $startPos = $isB + 2;
+                $invNumFromRec = Array();
+                
+                // Loop through the record starting from the position after ^B
+                for ($i = $startPos; $i < strlen($record); $i++) {
+                    // The inventory number ends with ^
+                    if ($record[$i] == "^") {
+                        break; // Exit the loop if we reach the end of the inventory number
+                    }
+                    $invNumFromRec[] = $record[$i];
+                }
+                
+                // Convert the array to a string if needed
+                $invNumFromRecString = implode('', $invNumFromRec);
+                $invNumFromDB = $invNumFromRecString;
+                
+                if($invNumFromRecString == $invNum){
+                    return true;
+                }
             }
-            $invNumFromRec[] = $record[$i];
+            
+            // Теперь проверяем поиск по штрих-коду (^H)
+            $isH = strpos($record, "^H");
+            if ($isH !== false) {
+                $startPos = $isH + 2;
+                $barcodeFromRec = Array();
+                
+                // Loop through the record starting from the position after ^H
+                for ($i = $startPos; $i < strlen($record); $i++) {
+                    // The barcode ends with ^
+                    if ($record[$i] == "^") {
+                        break; // Exit the loop if we reach the end of the barcode
+                    }
+                    $barcodeFromRec[] = $record[$i];
+                }
+                
+                // Convert the array to a string if needed
+                $barcodeFromRecString = implode('', $barcodeFromRec);
+                
+                if($barcodeFromRecString == $invNum){
+                    // Если нашли по штрих-коду, нужно найти соответствующий инвентарный номер
+                    if ($isB !== false) {
+                        $startPos = $isB + 2;
+                        $invNumFromRec = Array();
+                        
+                        for ($i = $startPos; $i < strlen($record); $i++) {
+                            if ($record[$i] == "^") {
+                                break;
+                            }
+                            $invNumFromRec[] = $record[$i];
+                        }
+                        
+                        $invNumFromDB = implode('', $invNumFromRec);
+                    } else {
+                        $invNumFromDB = $barcodeFromRecString; // Используем штрих-код как ID
+                    }
+                    return true;
+                }
+            }
         }
-        
-        // Convert the array to a string if needed
-        $invNumFromRecString = implode('', $invNumFromRec);
-        $invNumFromDB = $invNumFromRecString;
-       /* echo "<br>";//////////////////////////////////отладка
-        echo "инв из БД: ".$invNumFromRecString;
-        echo "<br>";
-        echo "искомый инв: ".$invNum;
-        echo "<br>";*/
-        if($invNumFromRecString==$invNum){
-            return true;
-        }
-        
+        return false; // If 910/ is not found, return false
     }
-    return false; // If 910/ is not found, return false
-}
 
 
     public function getBookStatus($book){
