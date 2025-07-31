@@ -63,6 +63,7 @@
             var pickupLocationValue = $('#pickupLocation').val();
             $('#search-form-pickup-location').val(pickupLocationValue);
             $('#reader-form-pickup-location').val(pickupLocationValue);
+            $('#give-complect-pickup-location').val(pickupLocationValue);
         }
         
         // Настройка скрытого календаря (только для передачи данных)
@@ -117,6 +118,21 @@
             $('#search-form-pickup-location').val(pickupLocationValue);
             
             console.log('Отправляется форма с данными:', {
+                date: dateValue,
+                pickupLocation: pickupLocationValue
+            });
+        });
+        
+        // Обработчик для формы выдачи комплекта
+        $('form[action="/giveComplect"]').on('submit', function() {
+            var dateValue = $('#datepicker-preview').val();
+            var pickupLocationValue = $('#pickupLocation').val();
+            
+            // Обновляем все скрытые поля в форме выдачи комплекта
+            $('#give-complect-pickup-location').val(pickupLocationValue);
+            $(this).find('input[name="day"]').val(dateValue);
+            
+            console.log('Отправляется форма выдачи комплекта с данными:', {
                 date: dateValue,
                 pickupLocation: pickupLocationValue
             });
@@ -190,7 +206,8 @@
                     <!-- Скрытое поле для передачи даты календаря -->
                     <input type="hidden" id="search-form-date" name="calendar_date" value="">
                     
-                    
+                    <!-- Скрытое поле для передачи места выдачи -->
+                    <input type="hidden" id="search-form-pickup-location" name="pickup_location" value="">
                     
                     <div class="mb-3">
                         <input 
@@ -277,7 +294,7 @@
                                 <input type="hidden" class="form-control" name="reader" value="{{ session('reader') }}">
                                 
                                 <!-- Скрытое поле для передачи места выдачи -->
-                                <input type="hidden" id="search-form-pickup-location" name="pickup_location" value="">
+                                <input type="hidden" id="give-complect-pickup-location" name="pickup_location" value="">
 
                                 <?php
                                 if(isset($complectRecs)){

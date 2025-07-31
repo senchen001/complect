@@ -21,7 +21,12 @@ class giveComplectController extends Controller
         $librarian = $request->librarian;
         $reader = $request->reader;
         $booksAmount = $request->booksAmount;//колличество книг в риквесте
-        $pickupLocation = $request->pickup_location;
+        $pickupLocation = !empty($request->pickup_location) ? $request->pickup_location : session('pickupLocation');
+        
+        // Обновляем место выдачи в сессии, если оно было передано
+        if (!empty($request->pickup_location)) {
+            session(['pickupLocation' => $request->pickup_location]);
+        }
         
         for($bookNum=1; $bookNum < $booksAmount; $bookNum++){        
             $book = "book".$bookNum;
@@ -121,6 +126,7 @@ class giveComplectController extends Controller
                 $readerDescr .= $reader_arr[$i] . " ";
             }
 
+            $pickupLoc = $this->getPickupLocation($pickupLocation);
             //добавим к дате выдачи время выдачи
             $time = date('H:i:s');
 
@@ -133,8 +139,7 @@ class giveComplectController extends Controller
             $record->addField($irbisDates[0] . " " . $time, 41);
             $record->addField($irbisDates[1], 42);
             $record->addField($librarian, 50);
-            $record->addField($maxMfn, 903);
-            $record->addField($pickupLocation, 102);
+            $record->addField($pickupLoc, 102);
             
             $recordArray = $record->getRecordArray();
             $write_result = $irbis->record_write($recordArray, false, true);
@@ -144,6 +149,15 @@ class giveComplectController extends Controller
             $x++;
         }
         $irbis->logout();
+    }
+
+    public function getPickupLocation($pickupLocation){
+        $pickupLocations = array(
+            "lib1" => "Библиотека 1",
+            "lib2" => "Библиотека 2",
+            "lib3" => "Библиотека 3",
+        );
+        return $pickupLocations[$pickupLocation];
     }
 
     public function dateToIrbisDate($giveDate, $returnDate){
