@@ -10,15 +10,23 @@ use Exception;
 require_once app_path('Http/Controllers/irbis_class.php');
 class makeComplectController extends Controller
 {
+    public $irbisServerPort;
+    public $DB_RDRKV;
+
+    public function __construct(){
+        $this->irbisServerPort = config('app.irbisServerPort');
+        $this->DB_RDRKV = config('app.complectDataBase');
+    }
+
     public function Show(){
         $makingComplect = Session::get('makingComplect', false);
         $newComplectNumber = Session::get('newComplectNumber', null);
         $thisComplect = [];
-        $DB_RDRKV = config('app.complectDataBase');
+        
         // Если комплект создается, загружаем его текущий состав
         if ($makingComplect && $newComplectNumber) {
-            $irbisServerPort = config('app.irbisServerPort');
-            $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $DB_RDRKV);
+            
+            $irbis = new \irbis64('127.0.0.1', $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
             
             if ($irbis->login()) {
                 try {
@@ -50,14 +58,13 @@ class makeComplectController extends Controller
 
    
     public function Store(Request $request){
-         $irbisServerPort = config('app.irbisServerPort');
-
+        
         $validated = $request->validate([
             'complID' => 'required|string',
             'invnum' => 'required|string',
         ]);
-        $DB_RDRKV = config('app.complectDataBase');
-        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $DB_RDRKV);
+        
+        $irbis = new \irbis64('127.0.0.1', $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
         if ($irbis->login()) {
             try {
                 //найдем запись комплекта с идентификатором complID
@@ -99,7 +106,7 @@ class makeComplectController extends Controller
                         $irbis->logout();
                         return redirect()->route('makeComplect')->with('error', 'Инвентарный номер ' . $invNumToRec . ' не найден в БД IBIS');
                     }
-                    $irbis->set_db($DB_RDRKV);
+                    $irbis->set_db($this->DB_RDRKV);
 
                     $record->addField($invNumToRec, $field_num);
                     $write_result = $irbis->record_write($record->getRecordArray(), false, true);
@@ -126,9 +133,9 @@ class makeComplectController extends Controller
     }
 
     public function createNewComplect(Request $request){
-        $irbisServerPort = config('app.irbisServerPort');
-        $DB_RDRKV = config('app.complectDataBase');
-        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $DB_RDRKV);
+        
+        
+        $irbis = new \irbis64('127.0.0.1',  $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
         
         if ($irbis->login()) {
             try {
@@ -186,14 +193,13 @@ class makeComplectController extends Controller
     }
 
     public function remove(Request $request){
-        $irbisServerPort = config('app.irbisServerPort');
         
         $validated = $request->validate([
             'complID' => 'required|string',
             'invnum' => 'required|string',
         ]);
-        $DB_RDRKV = config('app.complectDataBase');
-        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $DB_RDRKV);
+        
+        $irbis = new \irbis64('127.0.0.1', $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
         if ($irbis->login()) {
             try {
                 // Найдем запись комплекта с идентификатором complID
