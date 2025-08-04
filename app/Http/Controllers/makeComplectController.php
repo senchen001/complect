@@ -91,8 +91,18 @@ class makeComplectController extends Controller
                         return redirect()->route('makeComplect')->with('error', 'Инвентарный номер ' . $invNumToRec . ' уже добавлен в БД RDRKV');
                     }
                     
+                    //проверим, есть ли инвентарный номер в БД IBIS
+                    //если его нет в БД IBIS, то не добавляем его в комплект
+                    $irbis->set_db('IBIS');
+                    $IBIS_rec = $irbis->records_search('IN='.$invNumToRec, 10, 1, $format = '@all');
+                    if(empty($IBIS_rec['records'])){
+                        $irbis->logout();
+                        return redirect()->route('makeComplect')->with('error', 'Инвентарный номер ' . $invNumToRec . ' не найден в БД IBIS');
+                    }
+                    $irbis->set_db($DB_RDRKV);
+
                     $record->addField($invNumToRec, $field_num);
-                    $write_result = $irbis->record_write($record->getRecordArray(), true, true);
+                    $write_result = $irbis->record_write($record->getRecordArray(), false, true);
                     
                     if ($write_result !== '') {
                         $irbis->logout();
@@ -202,17 +212,34 @@ class makeComplectController extends Controller
                     $found = false;
                     $fieldCount = $record->getFieldCount(1033);
                     
-                    // Создаем новую запись без удаляемого поля
-                    $newRecord = new \irbisRecord();
+                    // Получаем исходную запись
+                    $recordArray = $record->getRecordArray();
+                    
+                    // Создаем новую запись с сохранением метаданных
+                    $newRecordArray = [
+                        'mfn' => $recordArray['mfn'],
+                        'status' => $recordArray['status'], 
+                        'ver' => $recordArray['ver'],
+                        'fields' => []
+                    ];
                     
                     // Копируем все поля, кроме удаляемого инвентарного номера
-                    $recordArray = $record->getRecordArray();
-                    foreach ($recordArray as $field) {
-                        if ($field['tag'] == 1033 && $field['value'] == $invNumToRemove) {
-                            $found = true;
-                            continue; // Пропускаем это поле
+                    if (isset($recordArray['fields'])) {
+                        foreach ($recordArray['fields'] as $fieldTag => $fieldIterations) {
+                            foreach ($fieldIterations as $iteration => $fieldData) {
+                                if ($fieldTag == 1033 && isset($fieldData['*']) && $fieldData['*'] == $invNumToRemove) {
+                                    $found = true;
+                                    continue; // Пропускаем это поле
+                                }
+                                if (isset($fieldData['*'])) {
+                                    // Добавляем поле в новую запись
+                                    if (!isset($newRecordArray['fields'][$fieldTag])) {
+                                        $newRecordArray['fields'][$fieldTag] = [];
+                                    }
+                                    $newRecordArray['fields'][$fieldTag][] = $fieldData;
+                                }
+                            }
                         }
-                        $newRecord->addField($field['value'], $field['tag']);
                     }
                     
                     if (!$found) {
@@ -220,7 +247,7 @@ class makeComplectController extends Controller
                         return redirect()->route('makeComplect')->with('error', 'Инвентарный номер ' . $invNumToRemove . ' не найден в комплекте');
                     }
                     
-                    $write_result = $irbis->record_write($newRecord->getRecordArray(), true, true, $mfn);
+                    $write_result = $irbis->record_write($newRecordArray, true, true, $mfn);
                     
                     if ($write_result !== '') {
                         $irbis->logout();
