@@ -14,6 +14,7 @@ class SearchController extends Controller
 {
     public function search(Request $request)
     {
+        
         global $invNumFromDB;
         $pref = "IN=";//префикс по умолчанию
         $irbisServerPort = config('app.irbisServerPort');
@@ -112,6 +113,7 @@ class SearchController extends Controller
         $irbis->set_db($complectDB);
                 
         $res2 = $irbis->records_search('IN='.$invNumFromDB,  10, 1);//инвентарные номера записей в комплекте
+        
         //dd($res2['records'][0][1]);
         $complectRecs = Array();
         
