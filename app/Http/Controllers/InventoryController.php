@@ -225,6 +225,10 @@ class InventoryController extends Controller
                 $storLocFound = $this->getStorLoc($book, $validated['invNum'], $usersStorLoc, $irbis);
                 $rastShifrFound = $this->getRastShifr($book, $validated['invNum'], $usersRastShifr, $irbis);
                 $bookStatus = $this->getBookStatus($book, $validated['invNum'], $irbis);
+                $booksAmount = 1;
+                if($bookStatus == "U"){//групповой учет
+                    $booksAmount = $this->getBooksAmount($book, $validated['invNum'], $irbis);
+                }
                 $invNum = $validated['invNum'];
                 $barcode = $this->getBarcode($invNum, $irbis, $book);               
                 $invStatus = $this->getInventoryStatus($invNum);            
@@ -233,11 +237,44 @@ class InventoryController extends Controller
 
                 $rastshifrs = Rastshifr::all();
                 $storlocs = StorLoc::all();
-                return view('inventory.index', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate', 'barcode', 'rastshifrs', 'storlocs'));
+                return view('inventory.index', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate', 'barcode', 'rastshifrs', 'storlocs', 'booksAmount'));
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
     }//////////////////////////end of invFind()
+
+    public function getBooksAmount($book, $invNum, $irbis){
+        $mfn = $book['records'][0][0];
+        $record = $irbis->record_read($mfn);
+        $booksAmount = 0;
+        $totalAmount = 1;
+        $givenAmount = 0;
+        foreach($record->record['fields'][910] as $field){
+            if(isset($field['B']) && $field['B'] == $invNum){
+                if(isset($field['1'])){//сколько всего экземпляров
+                    $totalAmount = $field['1'];
+                    
+                }
+                if(isset($field['2'])){//сколько выдано экземпляров
+                    $givenAmount = $field['2'];
+                    
+                }
+            }
+            if(isset($field['H']) && $field['H'] == $invNum){
+                if(isset($field['1'])){//сколько всего экземпляров
+                    $totalAmount = $field['1'];
+                    
+                }
+                if(isset($field['2'])){//сколько выдано экземпляров
+                    $givenAmount = $field['2'];
+                    
+                }
+            }
+        }
+        $booksAmount = $totalAmount - $givenAmount;
+        
+        return $booksAmount;
+    }
 
     public function getBarcode($invNum, $irbis, $book){
     
@@ -444,6 +481,9 @@ class InventoryController extends Controller
                 }
             }
            
+        }
+        if($bookStatus == "U"){
+            return $bookStatus;
         }
         $bookStatus = $status[$bookStatus];
         return $bookStatus;

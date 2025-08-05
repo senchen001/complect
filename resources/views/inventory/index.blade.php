@@ -111,11 +111,28 @@
             <div class="col-md-3">
                 <label for="rastShifr">Статус экземпляра:</label>
             </div>
+            @if($bookStatus == "U")
+            <div class="col-md-3">
+                Для ЭК ВУЗа - группа экз-ров (Безинв. учет). Размножение не требуется
+            </div>
+            @else
             <div class="col-md-3">
                 {{ $bookStatus }}
             </div>
+            @endif
         </div>
         <hr>
+
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Количество экземпляров:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $booksAmount }}
+            </div>
+        </div>
+        <hr>
+
         <div class="row">
             
             <input type="hidden" class="form-control" name="db" value="{{ $db }}">
