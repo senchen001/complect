@@ -34,7 +34,7 @@ class giveComplectController extends Controller
         }
         //соберем инвентарники в массив
         foreach($books as $book){
-            $rec = explode("<br>", $book);//инвентарн номер лежит в конце строки после :
+            $rec = explode("<br>", $book);//инвентарн номер лежит в конце строки после <br>
             $arr_len = count($rec);
             $inventNums[] = trim($rec[$arr_len-1]);//массив с инвентарными номерами
         }

@@ -355,7 +355,7 @@ class InventoryController extends Controller
                     if(isset($field["R"])){
                         $rastShifrFound = $field["R"];
                     }else{
-                        $rastShifrFound = "место хранения не найдено";
+                        $rastShifrFound = "расстановочный шифр не найден";
                     }
                 }
             }
