@@ -103,8 +103,30 @@ class makeComplectController extends Controller
                     $irbis->set_db('IBIS');
                     $IBIS_rec = $irbis->records_search('IN='.$invNumToRec, 10, 1, $format = '@all');
                     if(empty($IBIS_rec['records'])){
+                        $IBIS_rec = $irbis->records_search('INS='.$invNumToRec, 10, 1, $format = '@all');
+                        if(empty($IBIS_rec['records'])){
+                            $IBIS_rec = $irbis->records_search('EXU='.$invNumToRec, 10, 1, $format = '@all');
+                        }
+                        if(empty($IBIS_rec['records'])){
                         $irbis->logout();
                         return redirect()->route('makeComplect')->with('error', 'Инвентарный номер ' . $invNumToRec . ' не найден в БД IBIS');
+                        }
+                    }
+
+                    //заблокируем добавление инвентарного номера если статус записи 4 - утерян
+                    $mfn = $IBIS_rec['records'][0][0];
+                    $record1 = $irbis->record_read($mfn);
+                    foreach($record1->record['fields'][910] as $field){
+                        if(isset($field['B']) && $field['B'] == $invNumToRec){
+                            if(isset($field['A']) && $field['A'] == 4){
+                                $irbis->logout();
+                                return redirect()->route('makeComplect')->with('error', 'Экземпляр с инвентарным номером ' . $invNumToRec . ' утерян');
+                            }
+                            if(isset($field['A']) && $field['A'] == 6){
+                                $irbis->logout();
+                                return redirect()->route('makeComplect')->with('error', 'Экземпляр с инвентарным номером ' . $invNumToRec . ' списан');
+                            }
+                        }
                     }
                     $irbis->set_db($this->DB_RDRKV);
 
