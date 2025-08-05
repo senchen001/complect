@@ -60,6 +60,7 @@ class SearchController extends Controller
                         $invNum = $validated['inputNumber'];
                         $found = $this -> isInvNum($record, $invNum, $invNumFromDB);//проверяем содержит ли запись инвентарный номер
                         if($found!==false){
+                            
                             $found2 = strpos($record, "910/");//найдем запись экземпляра
                             if($found2!==false){
                                 //echo $record . "<br>";//////////////////////////////////////////вся запись целиком
@@ -113,13 +114,18 @@ class SearchController extends Controller
         $irbis->set_db($complectDB);
                 
         $res2 = $irbis->records_search('IN='.$invNumFromDB,  10, 1);//инвентарные номера записей в комплекте
-        
+        if(empty($res2['records'])){
+            //если не нашли по инвентарному номеру, то ищем по штрих-коду
+            $res2 = $irbis->records_search('IN='.$barcode,  10, 1);
+            
+        }
         //dd($res2['records'][0][1]);
         $complectRecs = Array();
         
         $irbis->set_db('IBIS');
 
         $complect = Array();
+        
         if(isset($res2['records'][0][1])){
             $complect = explode("*", $res2['records'][0][1]);
             for($i=0; $i<count($complect)-1; $i++){                
