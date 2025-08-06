@@ -204,6 +204,11 @@ class giveComplectController extends Controller
                         $record->setField($status, 910, $c, 'A');
                     }
                 }
+                if(isset($field["H"])){
+                    if($field["H"] == $inventNum){
+                        $record->setField($status, 910, $c, 'A');
+                    }
+                }
                 $c++;
             
             }
