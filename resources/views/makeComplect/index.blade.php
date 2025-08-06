@@ -89,14 +89,14 @@
     <form action="{{ route('store') }}" method="POST">
         @csrf
         <div class="form-group">
-            <label for="name">Номер комплекта</label>
-            <input type="text" class="form-control" name="complID" value="{{ $newComplectNumber }}" required>
+            <h3>Номер комплекта {{ $newComplectNumber }}</h3>
+            <input type="hidden" class="form-control" name="complID" value="{{ $newComplectNumber }}" required>
         </div>
         <div class="form-group">
             <label for="description">Инвентаный номер экземпляра</label>
             <input type="text" class="form-control" name="invnum" required>
         </div>
-        
+        <br>
         <button type="submit" class="btn btn-success">Добавить</button>
     </form>
     
