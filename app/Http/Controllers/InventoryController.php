@@ -76,7 +76,10 @@ class InventoryController extends Controller
             }else{
                 dd("Не удалось подключиться к серверу ИРБИС");
             }
-        return view('inventory.invApproved');
+
+            $rastshifrs = Rastshifr::all();
+            $storlocs = StorLoc::all();    
+        return view('inventory.index', compact('rastshifrs', 'storlocs'));
     }
 
     public function updateBookInventarisationDate($inventNum, $date, $irbis)
@@ -121,6 +124,9 @@ class InventoryController extends Controller
 
     public function invFind(Request $request){
         
+        // Отладочная информация
+        \Log::info('invFind method called with data: ', $request->all());
+        
         $librarian = auth()->user()->name;
         global $invNumFromDB;
          $irbisServerPort = config('app.irbisServerPort');
@@ -131,10 +137,10 @@ class InventoryController extends Controller
             'invNum' => 'required|string',
             'booksNum' => 'required|string',
             'storLoc' => 'required|string',
-            'rastShifr' => 'required|string',
+            'rastShifr' => 'nullable|string',
         ]);
 
-        $usersRastShifr = $validated['rastShifr'];
+        $usersRastShifr = $validated['rastShifr'] ?? '';
         $usersStorLoc = $validated['storLoc'];
         
         $db = $validated['db'];
@@ -197,14 +203,15 @@ class InventoryController extends Controller
                         }
                     }
                 }else{
-                    dd("book not found");
-                    echo "<h1>Не удалось получить всю запись</h1>";
-                    echo "<pre>";
-                    echo "краткая запись в формате brief:<br>";
-                    var_dump($res);
-                    echo "вся запись в формате all:<br>";
-                    var_dump($resAll);
-                    echo "</pre>";
+                    // dd("book not found"); // Закомментировано - не прерываем выполнение
+                    // Отладочная информация закомментирована из-за неопределенных переменных
+                    // echo "<h1>Не удалось получить всю запись</h1>";
+                    // echo "<pre>";
+                    // echo "краткая запись в формате brief:<br>";
+                    // var_dump($res);
+                    // echo "вся запись в формате all:<br>";
+                    // var_dump($resAll);
+                    // echo "</pre>";
                 } 
                 //dd($bookFound);
                 //////////место хранения
@@ -226,7 +233,7 @@ class InventoryController extends Controller
                 $rastShifrFound = $this->getRastShifr($book, $validated['invNum'], $usersRastShifr, $irbis);
                 $bookStatus = $this->getBookStatus($book, $validated['invNum'], $irbis);
                 $booksAmount = 1;
-                if($bookStatus == "U"){//групповой учет
+                if($bookStatus['status'] == "U"){//групповой учет
                     $booksAmount = $this->getBooksAmount($book, $validated['invNum'], $irbis);
                 }
                 $invNum = $validated['invNum'];
@@ -237,6 +244,9 @@ class InventoryController extends Controller
 
                 $rastshifrs = Rastshifr::all();
                 $storlocs = StorLoc::all();
+                
+                
+                
                 return view('inventory.index', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate', 'barcode', 'rastshifrs', 'storlocs', 'booksAmount'));
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
@@ -280,7 +290,7 @@ class InventoryController extends Controller
     
         $mfn = $book['records'][0][0];
         $record = $irbis->record_read($mfn);
-        $barcode = "штрихкод не найден";
+        $barcode = "нет";
         
         foreach($record->record['fields'][910] as $field){
             // Поиск штрихкода по инвентарному номеру (B -> H)
@@ -361,11 +371,15 @@ class InventoryController extends Controller
     }
 
     public function getInventoryStatus($invNumber){//проверим прошла ли книга инвентаризацию
+        \Log::info('getInventoryStatus called with invNumber: ' . $invNumber);
         $record = InventoryApproval::where('inv_num', $invNumber)->first();
+        \Log::info('Found record: ' . ($record ? 'YES' : 'NO'));
         if($record){
             $status = true; //книга прошла инвентаризацию
+            \Log::info('Setting invStatus to TRUE');
         }else{
             $status = false;// книга не прошла инвентаризацию
+            \Log::info('Setting invStatus to FALSE');
         }
         return $status;
     }
@@ -381,7 +395,7 @@ class InventoryController extends Controller
                     if(isset($field["R"])){
                         $rastShifrFound = $field["R"];
                     }else{
-                        $rastShifrFound = "расстановочный шифр не найден";
+                        $rastShifrFound = "ОТСУТСТВУЕТ";
                     }
                     break;
                 }
@@ -392,7 +406,7 @@ class InventoryController extends Controller
                     if(isset($field["R"])){
                         $rastShifrFound = $field["R"];
                     }else{
-                        $rastShifrFound = "расстановочный шифр не найден";
+                        $rastShifrFound = "ОТСУТСТВУЕТ";
                     }
                 }
             }
@@ -409,6 +423,10 @@ class InventoryController extends Controller
     }
     
     public function getStorLoc($book, $invNum, $usersStorLoc, $irbis){
+        
+        $storLocsArr = StorLoc::all();
+        
+        
         $storLocAndStatus = Array();        
         $mfn = $book['records'][0][0];
         $record = $irbis->record_read($mfn);
@@ -441,6 +459,8 @@ class InventoryController extends Controller
             $storLocAndStatus['status'] = false;
         }
         $storLocAndStatus['storLoc'] = $storLocFound;
+        $storLocRecord = $storLocsArr->where('storloc', $storLocFound)->first();
+        $storLocAndStatus['storLocDescr'] = $storLocRecord ? $storLocRecord->storlocdescr : 'Описание места хранения не найдено';
         //dd($storLocAndStatus);
         return $storLocAndStatus;
     }

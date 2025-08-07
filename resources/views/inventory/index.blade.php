@@ -76,9 +76,7 @@
         <button type="submit" class="btn btn-success">Найти</button>
     </form>
 </div>
-<?php
-//dd($invStatus);
-?>
+
 @if(isset($invStatus))
 <div class="container mt-4">
     <h2>Результат проверки</h2>
@@ -107,15 +105,11 @@
             <div class="col-md-3">
                 <label for="rastShifr">Статус экземпляра:</label>
             </div>
-            @if($bookStatus['status'] == "U")
-            <div class="col-md-3">
-                Для ЭК ВУЗа - группа экз-ров (Безинв. учет). Размножение не требуется
-            </div>
-            @else
+            
             <div class="col-md-3">
                 {{ $bookStatus['status'] }} - {{ $bookStatus['statusDescr'] }}
             </div>
-            @endif
+            
         </div>
         <hr>
 
@@ -140,9 +134,10 @@
             </div>
             <div class="col-md-3">
                 @if($storLocFound['status'])
-                    {{ $storLocFound['storLoc'] }}
+                    {{ $storLocFound['storLoc'] }}<br>
+                    {{ $storLocFound['storLocDescr'] }}
                 @else
-                    <p class="text-danger">место хранения в ИРБИС {{ $storLocFound['storLoc'] }}</p>
+                    <p class="text-danger"> {{ $storLocFound['storLoc'] }} <br> {{ $storLocFound['storLocDescr'] }}</p>
                 @endif
             </div>
             <input type="hidden" class="form-control" name="storLoc" value="{{ $storLocFound['storLoc'] }}">
@@ -179,7 +174,7 @@
         <br>
         <div class="row">
             <div class="col-md-3">
-                <label for="rastShifr">Штрихкод:</label>
+                <label for="rastShifr">Штрих-код/RFID:</label>
             </div>
             <div class="col-md-3">
                 {{ $barcode }}
