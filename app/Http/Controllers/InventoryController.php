@@ -464,6 +464,7 @@ class InventoryController extends Controller
             "9" => "На бронеполке"
         );
 
+        $bookStatusAr = Array();
         $mfn = $book['records'][0][0];        
         $record = $irbis->record_read($mfn);
         
@@ -482,11 +483,11 @@ class InventoryController extends Controller
             }
            
         }
-        if($bookStatus == "U"){
-            return $bookStatus;
-        }
-        $bookStatus = $status[$bookStatus];
-        return $bookStatus;
+        
+        $bookStatusAr['status'] = $bookStatus;
+        $bookStatusAr['statusDescr'] = $status[$bookStatus];
+        
+        return $bookStatusAr;
     }
 
     public function isInvNum($record, $invNum, &$invNumFromDB) {

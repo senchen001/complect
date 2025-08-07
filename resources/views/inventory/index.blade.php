@@ -6,7 +6,7 @@
     <form action="{{ route('invFind') }}" method="POST">
         @csrf
         <div class="row">
-            <div class="col-md-3">Кто проверяет:</div>
+            <div class="col-md-3">Кто выполняет проверку:</div>
             <div class="col-md-3">
             <?php
             if(isset(Auth::user()->name)){
@@ -55,21 +55,16 @@
                 <label for="rastShifr">Расстановочный шифр:</label>
             </div>
             <div class="col-md-3">
-                <select id="rastShifr" name="rastShifr"> 
-                    @foreach($rastshifrs as $rastshifr)
-                        <option value="{{ $rastshifr->rastshifr }}">{{ $rastshifr->rastshifr }}</option>
-                    @endforeach
-                </select>
+                <input type="text" class="form-control" name="rastShifr" id="rastShifr">
+                
             </div>
             <div class="col-md-3">
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addRastshifrModal">
-                    Добавить
-                </button>
+                
             </div>
         </div>
         <br>
         <div class="form-group">
-            <label for="invNum">Инвентаный номер экземпляра</label>
+            <label for="invNum">Инвентаный номер или ш-к экземпляра</label>
             <input type="text" class="form-control" name="invNum" required>
         </div>
         <br>
@@ -81,15 +76,16 @@
         <button type="submit" class="btn btn-success">Найти</button>
     </form>
 </div>
-
+<?php
+//dd($invStatus);
+?>
 @if(isset($invStatus))
 <div class="container mt-4">
     <h2>Результат проверки</h2>
     <form action="{{ route('approveAccepted') }}" method="POST">
         @csrf
         <div class="row">
-            <div class="col-md-3">Кто проверяет:</div>
-            <div class="col-md-3">{{ Auth::user()->name }}</div>
+            
             <input type="hidden" class="form-control" name="librarian" value="{{ Auth::user()->name }}">
         </div>
         <hr>
@@ -101,7 +97,7 @@
             </div>
             <div class="col-md-3">
                                 
-                <p class="text-success">Дата воследней инвентаризации {{ $invDate }}</p>
+                <p class="text-success">Дата последней инвентаризации {{ $invDate }}</p>
                                                  
             </div>            
         </div>
@@ -111,13 +107,13 @@
             <div class="col-md-3">
                 <label for="rastShifr">Статус экземпляра:</label>
             </div>
-            @if($bookStatus == "U")
+            @if($bookStatus['status'] == "U")
             <div class="col-md-3">
                 Для ЭК ВУЗа - группа экз-ров (Безинв. учет). Размножение не требуется
             </div>
             @else
             <div class="col-md-3">
-                {{ $bookStatus }}
+                {{ $bookStatus['status'] }} - {{ $bookStatus['statusDescr'] }}
             </div>
             @endif
         </div>
