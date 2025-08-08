@@ -33,10 +33,10 @@
 
 
     @if(!Session::get('makingComplect'))
-        <h1>Создать комплект</h1>
+        <h1>Сформировать комплект</h1>
         <form action="{{ route('createNewComplect') }}" method="POST">
             @csrf
-            <button type="submit" class="btn btn-success">Создать комплект</button>
+            <button type="submit" class="btn btn-success">Сформировать комплект</button>
         </form>
     @endif
 
