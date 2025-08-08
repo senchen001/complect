@@ -19,17 +19,20 @@
     border-radius: 5px;
     text-align: center;
 }
+.item-details {
+    max-width: 100%;
+}
+.item-details .small {
+    line-height: 1.4;
+}
+.fas.fa-barcode, .fas.fa-qrcode {
+    width: 16px;
+    text-align: center;
+}
 </style>
 
 <div class="container">
     
-
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            {{ session('error') }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    @endif
 
 
     @if(!Session::get('makingComplect'))
@@ -52,18 +55,38 @@
                 <div class="list-group list-group-flush">
                     @foreach($thisComplect as $index => $item)
                         <div class="list-group-item complect-item d-flex justify-content-between align-items-center">
-                            <div>
+                            <div class="flex-grow-1">
                                 <span class="badge bg-secondary me-2">{{ $index + 1 }}</span>
-                                <span>Инвентарный номер: <strong class="text-primary">{{ $item }}</strong></span>
+                                @if(is_array($item))
+                                    <div class="item-details">
+                                        <div class="mb-1">
+                                            <strong class="text-primary">{{ $item['title'] }}</strong>
+                                        </div>
+                                        <div class="small text-muted">
+                                            <span class="me-3">
+                                                <i class="fas fa-barcode"></i> 
+                                                Инв. №: <strong>{{ $item['invnum'] }}</strong>
+                                            </span>
+                                            @if(!empty($item['barcode']))
+                                                <span>
+                                                    <i class="fas fa-qrcode"></i> 
+                                                    Штрихкод: <strong>{{ $item['barcode'] }}</strong>
+                                                </span>
+                                            @endif
+                                        </div>
+                                    </div>
+                                @else
+                                    <span>Инв. №: <strong class="text-primary">{{ $item }}</strong></span>
+                                @endif
                             </div>
                             @if(Session::get('makingComplect'))
                                 <form action="{{ route('removeFromComplect') }}" method="POST" style="display: inline;">
                                     @csrf
                                     @method('DELETE')
-                                    <input type="hidden" name="invnum" value="{{ $item }}">
+                                    <input type="hidden" name="invnum" value="{{ is_array($item) ? $item['invnum'] : $item }}">
                                     <input type="hidden" name="complID" value="{{ $newComplectNumber }}">
                                     <button type="submit" class="btn btn-sm btn-outline-danger" 
-                                            onclick="return confirm('Удалить {{ $item }} из комплекта?')"
+                                            onclick="return confirm('Удалить {{ is_array($item) ? $item['invnum'] : $item }} из комплекта?')"
                                             title="Удалить из комплекта">
                                         <i class="fas fa-trash"></i> Удалить
                                     </button>
@@ -75,7 +98,7 @@
                 <div class="mt-3 item-counter">
                     <small class="text-muted">
                         <i class="fas fa-info-circle"></i> 
-                        Всего элементов в комплекте: <strong>{{ count($thisComplect) }}</strong>
+                        Всего экземпляров в комплекте: <strong>{{ count($thisComplect) }}</strong>
                     </small>
                 </div>
             </div>
@@ -93,13 +116,20 @@
             <input type="hidden" class="form-control" name="complID" value="{{ $newComplectNumber }}" required>
         </div>
         <div class="form-group">
-            <label for="description">Инвентаный номер экземпляра</label>
+            <label for="description">Инвентаный номер или штрих-код/RFID экземпляра</label>
             <input type="text" class="form-control" name="invnum" required>
         </div>
         <br>
         <button type="submit" class="btn btn-success">Добавить</button>
     </form>
-    
+    <br>
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
     <form action="{{ route('closeComplect') }}" method="POST" style="margin-top: 20px;">
         @csrf
         <button type="submit" class="btn btn-danger">Закрыть комплект</button>

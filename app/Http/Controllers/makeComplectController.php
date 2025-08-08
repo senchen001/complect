@@ -39,9 +39,11 @@ class makeComplectController extends Controller
                         if (is_object($record)) {
                             $fieldCount = $record->getFieldCount(1033);
                             for ($i = 1; $i <= $fieldCount; $i++) {
-                                $fieldValue = $record->getField(1033, $i, '*');
-                                if (!empty($fieldValue)) {
-                                    $thisComplect[] = $fieldValue;
+                                $invNum = $record->getField(1033, $i, '*');
+                                if (!empty($invNum)) {
+                                    // Получаем информацию об экземпляре из БД IBIS
+                                    $itemInfo = $this->getItemInfo($irbis, $invNum);
+                                    $thisComplect[] = $itemInfo;
                                 }
                             }
                         }
@@ -54,6 +56,66 @@ class makeComplectController extends Controller
         }
         
         return view('makeComplect.index', compact('makingComplect', 'newComplectNumber', 'thisComplect'));
+    }
+
+    /**
+     * Получить информацию об экземпляре из БД IBIS
+     */
+    private function getItemInfo($irbis, $invNum) {
+        $itemInfo = [
+            'invnum' => $invNum,
+            'barcode' => '',
+            'title' => 'Информация недоступна'
+        ];
+        
+        try {
+            // Переключаемся на БД IBIS
+            $irbis->set_db('IBIS');
+            
+            // Ищем запись по инвентарному номеру
+            $IBIS_rec = $irbis->records_search('IN='.$invNum, 10, 1, $format = '@all');
+            if (empty($IBIS_rec['records'])) {
+                $IBIS_rec = $irbis->records_search('INS='.$invNum, 10, 1, $format = '@all');
+                if (empty($IBIS_rec['records'])) {
+                    $IBIS_rec = $irbis->records_search('EXU='.$invNum, 10, 1, $format = '@all');
+                }
+            }
+            
+            if (!empty($IBIS_rec['records'])) {
+                $mfn = $IBIS_rec['records'][0][0];
+                $record = $irbis->record_read($mfn);
+                
+                if (is_object($record)) {
+                    // Получаем штрихкод из поля 910^D или ^C
+                    if (isset($record->record['fields'][910])) {
+                        foreach($record->record['fields'][910] as $field) {
+                            //dd($field);
+                            if (isset($field['B']) && $field['B'] == $invNum) {
+                                if (isset($field['H'])) {
+                                    $itemInfo['barcode'] = $field['H'];
+                                } 
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Получаем название из поля 200^A
+                    $title = $record->getField(200, 1, 'A');
+                    if (!empty($title)) {
+                        $itemInfo['title'] = $title;
+                    }
+                }
+            }
+            
+            // Возвращаемся к БД RDRKV
+            $irbis->set_db($this->DB_RDRKV);
+            
+        } catch (Exception $e) {
+            // В случае ошибки возвращаем базовую информацию
+            $irbis->set_db($this->DB_RDRKV);
+        }
+        //dd($itemInfo);
+        return $itemInfo;
     }
 
    

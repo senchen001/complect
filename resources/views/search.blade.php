@@ -144,7 +144,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm p-4">
-                <h3 class="mb-4 text-center">Введите данные</h3>
+                <h3 class="mb-4 text-center">Заполните данные</h3>
                 
                 <!-- Календарь для выбора даты возврата -->
                 <div class="row">
