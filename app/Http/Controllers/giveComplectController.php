@@ -16,6 +16,7 @@ class giveComplectController extends Controller
     {
 
         $irbisServerPort = config('app.irbisServerPort');
+        $irbisServerHost = config('app.irbisServerHost');
         $books = Array();
         $inventNums = Array();
         $librarian = $request->librarian;
@@ -48,7 +49,7 @@ class giveComplectController extends Controller
 
         /////////////////////////////////////////////////////////////////////////////////////////////////
         //////////////////////////////////////////////      запишем книги на читателя
-        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDR');
+        $irbis = new \irbis64($irbisServerHost, $irbisServerPort, '1', '1', 'RDR');
         if ($irbis->login()) {
             //найдем запись читателя по ID
            $reader_arr = explode(" ", $reader);

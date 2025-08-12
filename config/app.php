@@ -5,6 +5,7 @@ return [
     'complectDataBase' => env('COMPLECT_DATA_BASE', 'RDRKV2'),
     'ReqRecDataBase' => env('REQREC_DATA_BASE', 'REQREC2'),
     'irbisServerPort' => env('IRBIS_SERVER_PORT', '6666'),
+    'irbisServerHost' => env('IRBIS_SERVER_HOST', '127.0.0.1'),
     /*
     |--------------------------------------------------------------------------
     | Application Name

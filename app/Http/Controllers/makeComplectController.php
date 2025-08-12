@@ -12,10 +12,12 @@ class makeComplectController extends Controller
 {
     public $irbisServerPort;
     public $DB_RDRKV;
+    public $irbisServerHost;
 
     public function __construct(){
         $this->irbisServerPort = config('app.irbisServerPort');
         $this->DB_RDRKV = config('app.complectDataBase');
+        $this->irbisServerHost = config('app.irbisServerHost');
     }
 
     public function Show(){
@@ -26,7 +28,7 @@ class makeComplectController extends Controller
         // Если комплект создается, загружаем его текущий состав
         if ($makingComplect && $newComplectNumber) {
             
-            $irbis = new \irbis64('127.0.0.1', $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
+            $irbis = new \irbis64($this->irbisServerHost, $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
             
             if ($irbis->login()) {
                 try {
@@ -126,7 +128,7 @@ class makeComplectController extends Controller
             'invnum' => 'required|string',
         ]);
         
-        $irbis = new \irbis64('127.0.0.1', $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
+        $irbis = new \irbis64($this->irbisServerHost, $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
         if ($irbis->login()) {
             try {
                 //найдем запись комплекта с идентификатором complID
@@ -219,7 +221,7 @@ class makeComplectController extends Controller
     public function createNewComplect(Request $request){
         
         
-        $irbis = new \irbis64('127.0.0.1',  $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
+        $irbis = new \irbis64($this->irbisServerHost,  $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
         
         if ($irbis->login()) {
             try {
@@ -283,7 +285,7 @@ class makeComplectController extends Controller
             'invnum' => 'required|string',
         ]);
         
-        $irbis = new \irbis64('127.0.0.1', $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
+        $irbis = new \irbis64($this->irbisServerHost, $this->irbisServerPort, '1', '1', $this->DB_RDRKV);
         if ($irbis->login()) {
             try {
                 // Найдем запись комплекта с идентификатором complID

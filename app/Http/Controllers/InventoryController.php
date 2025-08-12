@@ -43,7 +43,8 @@ class InventoryController extends Controller
             //запишем данные в БД REQREC
             $ReqRecDB = config('app.ReqRecDataBase');
             $irbisServerPort = config('app.irbisServerPort');
-            $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $ReqRecDB);
+            $irbisServerHost = config('app.irbisServerHost');
+            $irbis = new \irbis64($irbisServerHost, $irbisServerPort, '1', '1', $ReqRecDB);
             if ($irbis->login()) {
                 $day = date('Y-m-d H:i:s');
                 $maxMfn = $irbis->mfn_max();
@@ -130,7 +131,7 @@ class InventoryController extends Controller
         $librarian = auth()->user()->name;
         global $invNumFromDB;
          $irbisServerPort = config('app.irbisServerPort');
-       
+         $irbisServerHost = config('app.irbisServerHost');
 
          $validated = $request->validate([
             'db' => 'required|string',
@@ -144,7 +145,7 @@ class InventoryController extends Controller
         $usersStorLoc = $validated['storLoc'];
         
         $db = $validated['db'];
-        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', $db);
+        $irbis = new \irbis64($irbisServerHost, $irbisServerPort, '1', '1', $db);
         if ($irbis->login()) {
             $book = $irbis->records_search('IN='.$validated['invNum'], 10, 1, $format = '@all');//для вывода инфо о книге
                 

@@ -15,6 +15,7 @@ class SearchReaderController extends Controller
     {
         $reader = "";
         $irbisServerPort = config('app.irbisServerPort');
+        $irbisServerHost = config('app.irbisServerHost');
         
         $validated = $request->validate([
             'reader' => 'required|string',
@@ -32,7 +33,7 @@ class SearchReaderController extends Controller
             session(['pickupLocation' => $validated['pickup_location']]);
         }
         
-        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'RDR');
+        $irbis = new \irbis64($irbisServerHost, $irbisServerPort, '1', '1', 'RDR');
         if ($irbis->login()) {
             $readerRec = $irbis->records_search('RI='.$validated['reader'], 10, 1);
             if(isset($readerRec['records'][0][1])){

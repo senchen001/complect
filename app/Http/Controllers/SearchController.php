@@ -18,6 +18,7 @@ class SearchController extends Controller
         global $invNumFromDB;
         $pref = "IN=";//префикс по умолчанию
         $irbisServerPort = config('app.irbisServerPort');
+        $irbisServerHost = config('app.irbisServerHost');
 
         $validated = $request->validate([
             'inputNumber' => 'required|string',
@@ -35,7 +36,7 @@ class SearchController extends Controller
             session(['pickupLocation' => $validated['pickup_location']]);
         }
         
-        $irbis = new \irbis64('127.0.0.1', $irbisServerPort, '1', '1', 'IBIS');
+        $irbis = new \irbis64($irbisServerHost, $irbisServerPort, '1', '1', 'IBIS');
         if ($irbis->login()) {
         
                 $res = $irbis->records_search('IN='.$validated['inputNumber'], 10, 1, $format = '@brief_ik');//для вывода инфо о книге
