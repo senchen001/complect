@@ -45,7 +45,7 @@
             $('#pickupLocation').val(sessionPickupLocation);
         } else {
             // Устанавливаем значение по умолчанию, если нет сохраненного
-            $('#pickupLocation').val('lib1');
+            $('#pickupLocation').val('ucho');
         }
         
         // Инициализация скрытого поля места выдачи (после восстановления из сессии)
@@ -157,9 +157,13 @@
                     <div class="col-md-4">
                         <label for="pickupLocation">Место выдачи:</label>
                         <select id="pickupLocation" name="pickupLocation" class="form-select"> <!-- Bootstrap 5: form-select для выпадающих списков -->
-                            <option value="lib1" {{ session('pickupLocation') == 'lib1' || !session('pickupLocation') ? 'selected' : '' }}>Библиотека 1</option>
-                            <option value="lib2" {{ session('pickupLocation') == 'lib2' ? 'selected' : '' }}>Библиотека 2</option>
-                            <option value="lib3" {{ session('pickupLocation') == 'lib3' ? 'selected' : '' }}>Библиотека 3</option>
+                            <option value="ucho" {{ session('pickupLocation') == 'ucho' || !session('pickupLocation') ? 'selected' : '' }}>учо</option>
+                            <option value="ab1" {{ session('pickupLocation') == 'ab1' ? 'selected' : '' }}>аб1</option>
+                            <option value="ab2" {{ session('pickupLocation') == 'ab2' ? 'selected' : '' }}>аб2</option>
+                            <option value="ab3" {{ session('pickupLocation') == 'ab3' ? 'selected' : '' }}>аб3</option>
+                            <option value="chz1" {{ session('pickupLocation') == 'chz1' ? 'selected' : '' }}>чз1</option>
+                            <option value="chz2" {{ session('pickupLocation') == 'chz2' ? 'selected' : '' }}>чз2</option>
+                            <option value="chz3" {{ session('pickupLocation') == 'chz3' ? 'selected' : '' }}>чз3</option>
                         </select>
                     </div>
                 </div>
@@ -288,7 +292,7 @@
                         <div class="container mt-5">
                             <form action="/giveComplect" method="post">
                             @csrf
-                                @if(Auth::check() && Auth::user()->name && session('reader') && count($complectRecs) > 1 && $complectStatus && $bookStatus!="Выдан читателю")
+                                @if(Auth::check() && Auth::user()->name && session('reader') && count($complectRecs) > 1 && $complectStatus && $bookStatus!="Выдан читателю" && null !== session("returnDate"))
                                 <input type="hidden" class="form-control" name="librarian" value="{{ Auth::user()->name }}">
                                 
                                 <input type="hidden" class="form-control" name="reader" value="{{ session('reader') }}">

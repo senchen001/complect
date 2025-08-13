@@ -154,9 +154,13 @@ class giveComplectController extends Controller
 
     public function getPickupLocation($pickupLocation){
         $pickupLocations = array(
-            "lib1" => "Библиотека 1",
-            "lib2" => "Библиотека 2",
-            "lib3" => "Библиотека 3",
+            "ucho" => "Учебный отдел",
+            "ab1" => "абонемент 1",
+            "ab2" => "абонемент 2",
+            "ab3" => "абонемент 3",
+            "chz1" => "Чит. зал 1",
+            "chz2" => "Чит. зал 2",
+            "chz3" => "Чит. зал 3",
         );
         return $pickupLocations[$pickupLocation];
     }
