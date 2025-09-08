@@ -368,7 +368,17 @@
             
         </div>
         <hr>
-
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Обложка:</label>
+            </div>
+            
+            <div class="col-md-3">
+                <img src="img/{{ $cover }}" alt="Обложка" style="max-width: 100px; height: auto;">
+            </div>
+            
+        </div>
+        <hr>
         <div class="row">
             <div class="col-md-3">
                 <label for="rastShifr">Количество экземпляров:</label>

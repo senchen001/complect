@@ -242,17 +242,33 @@ class InventoryController extends Controller
                 $invStatus = $this->getInventoryStatus($invNum);            
                 $invDate = $this->getInvDate($invNum, $irbis, $book);
                 $invNum = $this->getInvNum($invNum, $irbis, $book);
-
+                $cover = $this->getCover($invNum, $irbis);
                 $rastshifrs = Rastshifr::all();
                 $storlocs = StorLoc::all();
                 
                 
                 
-                return view('inventory.index', compact('bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate', 'barcode', 'rastshifrs', 'storlocs', 'booksAmount'));
+                return view('inventory.index', compact('cover','bookDescr', 'storLocFound', 'rastShifrFound', 'invNum', 'invStatus', 'db', 'bookStatus', 'invDate', 'barcode', 'rastshifrs', 'storlocs', 'booksAmount'));
         }else{
             echo '<h3 class="text-danger" style="margin-left:20%">Не удалось подключиться к серверу ИРБИС</h3>';
         }
     }//////////////////////////end of invFind()
+
+    public function getCover($inputNumber, $irbis){
+        $resAll = $irbis->records_search('IN='.$inputNumber, 10, 1, $format = '@all');
+        if(isset($resAll['records'][0][0])){
+            $mfn = $resAll['records'][0][0];
+            $record = $irbis->record_read($mfn);
+                if(isset($record->record['fields'][953][1]['T'])){
+                    $cover = $record->record['fields'][953][1]['T'];
+                }else{
+                    $cover = "defaultCover.jpg";
+                }
+        }else{
+            $cover = "defaultCover.jpg";
+        }
+        return $cover;
+    }
 
     public function getBooksAmount($book, $invNum, $irbis){
         $mfn = $book['records'][0][0];
