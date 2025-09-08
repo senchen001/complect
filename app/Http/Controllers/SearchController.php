@@ -106,6 +106,8 @@ class SearchController extends Controller
 
         // Получаем штрих-код для найденной записи
         $barcode = $this->getBarcode($validated['inputNumber'], $irbis, $resAll);
+        //получаем обложку для найденной записи
+        $cover = $this->getCover($validated['inputNumber'], $irbis);
         
         $result = $res;
 
@@ -132,7 +134,8 @@ class SearchController extends Controller
             for($i=0; $i<count($complect)-1; $i++){                
                 $res = $irbis->records_search('IN='.$complect[$i], 10, 1, $format = '@brief_ik');
                 if(isset($res['records'][0][1])){
-                    $complectRecs[] = $res['records'][0][1] . " <br> ".$complect[$i];//в массиве записи книг, которые входят в комплект
+                    $cover2 = $this->getCover($complect[$i], $irbis);
+                    $complectRecs[] = $res['records'][0][1] . " <br> ".$complect[$i] . " <br> " . $cover2;//в массиве записи книг, которые входят в комплект
                 }else{
                     dd("проверьте запись с комплектами в БД RDRKV2");
                 }
@@ -148,11 +151,23 @@ class SearchController extends Controller
 
         // Возвращаем шаблон с результатом
         if(isset($bookStatus)){
-            return view('search', compact('result', 'complectRecs', 'bookStatus', 'invNum', 'invNumFromDB', 'barcode', 'complectStatus'));
+            return view('search', compact('result', 'complectRecs', 'bookStatus', 'invNum', 'invNumFromDB', 'barcode', 'complectStatus', 'cover'));
         }else{
             
-            return view('search', compact('result', 'complectRecs', 'invNum', 'barcode'));
+            return view('search', compact('result', 'complectRecs', 'invNum', 'barcode', 'cover'));
         }
+    }
+
+    public function getCover($inputNumber, $irbis){
+        $resAll = $irbis->records_search('IN='.$inputNumber, 10, 1, $format = '@all');
+        $mfn = $resAll['records'][0][0];
+        $record = $irbis->record_read($mfn);
+        if(isset($record->record['fields'][953][1]['T'])){
+            $cover = $record->record['fields'][953][1]['T'];
+        }else{
+            $cover = "defaultCover.jpg";
+        }
+        return $cover;
     }
 
     public function getBarcode($inputNumber, $irbis, $book){

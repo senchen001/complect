@@ -468,39 +468,33 @@
                         if(isset($result["records"][0])){
 
                             echo '<div class="alert alert-success mt-4" role="alert">';
-
+                            
+                            //dd($result["records"]);
                             foreach ($result["records"] as $item) {
-                            // Внешний flex-контейнер для одной записи
-    echo '<div style="display: flex; gap: 20px; align-items: flex-start; margin-bottom: 30px;">';
-
-    // Левая колонка — описание экземпляра
-    echo '<div style="flex: 1;">';
-    echo "<h5>экземпляр:</h5>" . $item[1] . "<br>";
-    echo "<h5>инвентарный номер:</h5>" . $invNumFromDB . "<br>";
-    if (isset($barcode) && $barcode != "штрихкод не найден") {
-        echo "<h5>штрих-код:</h5>" . $barcode . "<br>";
-    }
-    echo "<h5>что вы искали:</h5>" . $invNum . "<br>";
-    if (isset($bookStatus)) {
-        if ($bookStatus == "Утерян" || $bookStatus == "Списан") {
-            echo "<div style='color:red;'><h5>статус:</h5>" . $bookStatus . "</div><br>";
-        } else {
-            echo "<h5>статус:</h5>" . $bookStatus . "<br>";
-        }
-    } else {
-        echo "<h5>не удалось получить статус</h5>";
-    }
-    echo '</div>';
-
-    // Правая колонка — изображение
-    echo '<div style="flex-shrink: 0;">';
-    echo '<img src="img/'.$cover.'" alt="Изображение" style="max-width: 150px; height: auto;">';
-    echo '</div>';
-
-    echo '</div>'; // конец flex-контейнера для записи
-}
-
-echo '</div>'; // конец alert
+                                echo "<h5>экземпляр:</h5>".$item[1]."<br>";
+                                echo "<h5>инвентарный номер:</h5>".$invNumFromDB."<br>";
+                                if(isset($barcode) && $barcode != "штрихкод не найден"){
+                                    echo "<h5>штрих-код:</h5>".$barcode."<br>";
+                                }
+                                echo "<h5>что вы искали:</h5>".$invNum."<br>";
+                                if(isset($bookStatus)){
+                                    
+                                    if($bookStatus=="Утерян" || $bookStatus=="Списан"){
+                                        
+                                        echo "<div style='color:red;'><h5>статус:</h5>".$bookStatus."</div><br>";    
+                                    }else{
+                                        
+                                        echo "<h5>статус:</h5>".$bookStatus."<br>";
+                                    }
+                                }else{
+                                    echo "<h5>не удалось получить статус</h5>";
+                                }
+                            
+                            echo "<br><hr><br>";
+                            echo '</div>';
+    // Правая часть с изображением
+                            }
+                        echo '</div>';
                         }
                         ?>    
                         
@@ -514,14 +508,11 @@ echo '</div>'; // конец alert
                                 $number = 1;
                                 echo "<h2>Записи в комплекте</h2>";
                                 echo "<table border='1'>";
-                                echo "<tr><th>№</th><th>Экземпляр</th><th>Инв. номер</th><th>Обложка</th></tr>";
+                                echo "<tr><th>№</th><th>Экземпляр</th><th>Инв. номер</th></tr>";
                                 foreach ($complectRecs as $rec) {
-                                
                                     $rec = explode("<br>", $rec);
                                     echo "<tr border='1'>";
                                     echo "<td>".$number."</td><td>".$rec[0]."</td><td>".$rec[1]."</td>";
-                                    $cover2 = ltrim($rec[2]);
-                                    echo "<td><img src='img/".$cover2."' alt='Обложка' style='max-width: 100px; height: auto;'></td>";
                                     echo "</tr>";
                                     $number++;
                                 }
