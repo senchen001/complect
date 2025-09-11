@@ -259,13 +259,17 @@ class InventoryController extends Controller
         if(isset($resAll['records'][0][0])){
             $mfn = $resAll['records'][0][0];
             $record = $irbis->record_read($mfn);
-                if(isset($record->record['fields'][953][1]['T'])){
-                    $cover = $record->record['fields'][953][1]['T'];
+            
+                if(isset($record->record['fields'][953][1]['B'])){
+                    $imageData = $record->getField(953, 1, 'B');
+                    $decodedImage = $irbis->blob_decode($imageData);
+                    $cover = base64_encode($decodedImage);
+                    
                 }else{
-                    $cover = "defaultCover.jpg";
+                    $cover = "no";
                 }
         }else{
-            $cover = "defaultCover.jpg";
+            $cover = "no";
         }
         return $cover;
     }

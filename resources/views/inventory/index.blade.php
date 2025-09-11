@@ -343,7 +343,7 @@
             <input type="text" class="form-control" name="booksNum"  value="1" required>
         </div>
         <br>
-        <button type="submit" class="btn btn-success">Найти</button>
+        <!--<button type="submit" class="btn btn-success">Найти</button>-->
     </form>
 </div>
 
@@ -364,7 +364,11 @@
          
          <div class="row">
             <div class="col-md-3">
-                <img src="img/{{ $cover }}" alt="Обложка" style="max-width: 100px; height: auto;">
+                @if($cover != "no")
+                <img src="data:image/jpeg;base64,{{ $cover }}" alt="IRBIS Image" style="max-width: 150px; height: auto;">
+                @else
+                <img src="img/defaultCover.jpg" alt="IRBIS Image" style="max-width: 150px; height: auto;">
+                @endif
             </div>
             <div class="col-md-3">
                 {{ $bookDescr }}
@@ -446,7 +450,7 @@
             </div>
             @else
             <div class="col-md-3">
-                <p class="text-danger">Расстановочный шифр в ИРБИС {{ $rastShifrFound['rastShifr'] }}</p>
+                <p class="text-danger"> {{ $rastShifrFound['rastShifr'] }}</p>
             </div>
             @endif
             <input type="hidden" class="form-control" name="rastShifr" value="{{ $rastShifrFound['rastShifr'] }}">
