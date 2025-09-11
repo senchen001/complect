@@ -290,22 +290,25 @@
         </div>
         <br>
         <div class="form-group">
-            <label for="invNum">Инвентаный номер или ш-к экземпляра</label>
-            <div class="row">
-                <div class="col-md-8">
-                    <input type="text" class="form-control" name="invNum" id="invNum" required>
-                </div>
-
+            
+            <div class="row align-items-end">
                 <div class="col-md-4">
-                    <button type="submit" class="btn btn-success">Найти</button>
+                  <label for="invNum" class="form-label mb-0">Инвентаный номер или ш-к экземпляра</label>
+                  <input type="text" class="form-control" name="invNum" id="invNum" required>
                 </div>
-                
-                <div class="col-md-4">
-                    <button type="button" class="btn btn-info" id="searchScanButton">
-                        📷 Сканировать
-                    </button>
+                <div class="col-md-3">
+                  <label for="booksNum" class="form-label mb-0">Количество экземпляров</label>
+                  <input type="text" class="form-control" name="booksNum" value="1" required>
                 </div>
-            </div>
+                <div class="col-md-2">
+                  <button type="submit" class="btn btn-success w-100">Найти</button>
+                </div>
+                <div class="col-md-3">
+                  <button type="button" class="btn btn-info w-100" id="searchScanButton">
+                    📷 Сканировать
+                  </button>
+                </div>
+              </div>
             
             <!-- Сканер штрихкодов для поиска -->
             <div id="searchScannerSection" style="display: none; margin-top: 15px;">
@@ -338,10 +341,7 @@
             </div>
         </div>
         <br>
-        <div class="form-group">
-            <label for="booksNum">Количество экземпляров</label>
-            <input type="text" class="form-control" name="booksNum"  value="1" required>
-        </div>
+        
         <br>
         <!--<button type="submit" class="btn btn-success">Найти</button>-->
     </form>
