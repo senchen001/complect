@@ -231,48 +231,62 @@
             </div>
         </div>
         <br>
-        <div class="row">
-            <div class="col-md-3">
-                <label for="db">База данных:</label>
-            </div>
-            <div class="col-md-3">
-                <select id="db" name="db"> <!-- Добавлен атрибут name -->
-                    <option value="IBIS">IBIS</option>
-                    <option value="HOMELIB">HOMELIB</option>
-                    <option value="DB2">DB2</option>
-                </select>
-            </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-md-3">
-                <label for="storLoc">Место хранения:</label>
-            </div>
-            <div class="col-md-3">
-                <select id="storLoc" name="storLoc"> 
-                    @foreach($storlocs as $storloc)
-                        <option value="{{ $storloc->storloc }}">{{ $storloc->storloc }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-3">
-                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStorlocModal">
-                    Добавить
+        <div class="accordion" id="accordionExample">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="headingOne">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseForm" aria-expanded="false" aria-controls="collapseForm">
+                  Настройки
                 </button>
+              </h2>
+              <div id="collapseForm" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                <div class="accordion-body">
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label for="db">База данных:</label>
+                    </div>
+                    <div class="col-md-3">
+                      <select id="db" name="db">
+                        <option value="IBIS">IBIS</option>
+                        <option value="HOMELIB">HOMELIB</option>
+                        <option value="DB2">DB2</option>
+                      </select>
+                    </div>
+                  </div>
+                  <br>
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label for="storLoc">Место хранения:</label>
+                    </div>
+                    <div class="col-md-3">
+                      <select id="storLoc" name="storLoc">
+                        @foreach($storlocs as $storloc)
+                          <option value="{{ $storloc->storloc }}">{{ $storloc->storloc }}</option>
+                        @endforeach
+                      </select>
+                    </div>
+                    <div class="col-md-3">
+                      <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addStorlocModal">
+                        Добавить
+                      </button>
+                    </div>
+                  </div>
+                  <br>
+                  <div class="row">
+                    <div class="col-md-3">
+                      <label for="rastShifr">Расстановочный шифр:</label>
+                    </div>
+                    <div class="col-md-3">
+                      <input type="text" class="form-control" name="rastShifr" id="rastShifr">
+                    </div>
+                    <div class="col-md-3">
+                    
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-        </div>
-        <br>
-        <div class="row">
-            <div class="col-md-3">
-                <label for="rastShifr">Расстановочный шифр:</label>
-            </div>
-            <div class="col-md-3">
-                <input type="text" class="form-control" name="rastShifr" id="rastShifr">
-                
-            </div>
-            <div class="col-md-3">
-                
-            </div>
+          </div>
+          
         </div>
         <br>
         <div class="form-group">
@@ -338,13 +352,26 @@
     <h2>Результат проверки</h2>
     <form action="{{ route('approveAccepted') }}" method="POST">
         @csrf
+        
+        <button type="submit" class="btn btn-success">Инвентаризировать</button>
+        
         <div class="row">
             
             <input type="hidden" class="form-control" name="librarian" value="{{ Auth::user()->name }}">
         </div>
         <hr>
         <br>
-              
+         
+         <div class="row">
+            <div class="col-md-3">
+                <img src="img/{{ $cover }}" alt="Обложка" style="max-width: 100px; height: auto;">
+            </div>
+            <div class="col-md-3">
+                {{ $bookDescr }}
+            </div>
+            <input type="hidden" class="form-control" name="bookDescr" value="{{ $bookDescr }}">
+        </div>
+        <hr>     
         <div class="row">
             <div class="col-md-3">
                 <label for="storLoc">Статус инвентаризации:</label>
@@ -355,7 +382,16 @@
                                                  
             </div>            
         </div>
-
+        <hr>
+        <div class="row">
+            <div class="col-md-3">
+                <label for="rastShifr">Штрих-код/RFID:</label>
+            </div>
+            <div class="col-md-3">
+                {{ $barcode }}
+            </div>
+            <input type="hidden" class="form-control" name="barcode" value="{{ $barcode }}">
+        </div>
         <hr>
         <div class="row">
             <div class="col-md-3">
@@ -368,17 +404,7 @@
             
         </div>
         <hr>
-        <div class="row">
-            <div class="col-md-3">
-                <label for="rastShifr">Обложка:</label>
-            </div>
-            
-            <div class="col-md-3">
-                <img src="img/{{ $cover }}" alt="Обложка" style="max-width: 100px; height: auto;">
-            </div>
-            
-        </div>
-        <hr>
+        
         <div class="row">
             <div class="col-md-3">
                 <label for="rastShifr">Количество экземпляров:</label>
@@ -438,26 +464,7 @@
         </div>
         <hr>
         <br>
-        <div class="row">
-            <div class="col-md-3">
-                <label for="rastShifr">Штрих-код/RFID:</label>
-            </div>
-            <div class="col-md-3">
-                {{ $barcode }}
-            </div>
-            <input type="hidden" class="form-control" name="barcode" value="{{ $barcode }}">
-        </div>
-        <hr>
-        <br>
-        <div class="row">
-            <div class="col-md-3">
-                <label for="rastShifr">Экземпляр:</label>
-            </div>
-            <div class="col-md-3">
-                {{ $bookDescr }}
-            </div>
-            <input type="hidden" class="form-control" name="bookDescr" value="{{ $bookDescr }}">
-        </div>
+        
 
         @if(!$invStatus)
         <div class="form-group">
