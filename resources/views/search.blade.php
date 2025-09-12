@@ -494,7 +494,12 @@
 
     // Правая колонка — изображение
     echo '<div style="flex-shrink: 0;">';
-    echo '<img src="img/'.$cover.'" alt="Изображение" style="max-width: 150px; height: auto;">';
+        if($cover != "no"){
+            
+            echo '<img src="data:image/jpeg;base64,'. $cover .'" alt="IRBIS Image" style="max-width: 150px; height: auto;">';
+        }else{
+            echo '<img src="img/defaultCover.jpg" alt="IRBIS Image" style="max-width: 150px; height: auto;">';
+        }        
     echo '</div>';
 
     echo '</div>'; // конец flex-контейнера для записи
@@ -521,7 +526,14 @@ echo '</div>'; // конец alert
                                     echo "<tr border='1'>";
                                     echo "<td>".$number."</td><td>".$rec[0]."</td><td>".$rec[1]."</td>";
                                     $cover2 = ltrim($rec[2]);
-                                    echo "<td><img src='img/".$cover2."' alt='Обложка' style='max-width: 100px; height: auto;'></td>";
+                                    echo "<td>";
+                                        if($cover2 != "no"){
+            
+            echo '<img src="data:image/jpeg;base64,'. $cover2 .'" alt="IRBIS Image" style="max-width: 100px; height: auto;">';
+        }else{
+            echo '<img src="img/defaultCover.jpg" alt="IRBIS Image" style="max-width: 150px; height: auto;">';
+        } 
+                                    echo "</td>";
                                     echo "</tr>";
                                     $number++;
                                 }
